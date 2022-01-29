@@ -1,29 +1,30 @@
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- *
- */
-
-/**
- * @author jgao2
+ * @author Jason Gao
+ * 
+ *         The floor subsystem is in charge of sending user requests that it
+ *         gets from file input to the scheduler
  *
  */
 public class FloorSystem {
 	private final FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
-	private final FloorDataGramCommunicator communicator = new FloorDataGramCommunicator(); // reference to the floor subsystem communicator
+	private final FloorDataGramCommunicator communicator = new FloorDataGramCommunicator(); // reference to the floor
+																							// subsystem communicator
 
-	public static List<Map<String, String>> floorDataEntry; // list of floor entries where each entry is represented by a map
+	public static List<byte[]> floorDataEntry; // list of floor entries where each entry is a byte array
 
 	public FloorSystem(String floorDataFilename) {
-		floorDataEntry = new ArrayList<Map<String, String>>();
+		floorDataEntry = new ArrayList<byte[]>();
 		parser.parseFile(floorDataFilename);
 	}
-	
+
+	/**
+	 * Sends the floor requests to the scheduler
+	 */
 	public void sendFloorData() {
-		for (Map<String, String> floorEntry : floorDataEntry) {
+		for (byte[] floorEntry : floorDataEntry) {
 			communicator.send(floorEntry);
 		}
 	}

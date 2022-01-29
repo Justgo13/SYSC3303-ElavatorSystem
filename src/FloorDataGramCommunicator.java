@@ -1,19 +1,15 @@
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 /**
+ * @author Jason Gao
  * 
- */
-
-/**
- * @author jgao2
+ *         A class for sending and receiving UDP Datagram packets from the
+ *         scheduler
  *
  */
 public class FloorDataGramCommunicator {
@@ -39,14 +35,15 @@ public class FloorDataGramCommunicator {
 		}
 	}
 
-	public void send(Map<String, String> message) {
-
+	/**
+	 * Sends a message contained in a byte array using a datagram packet and
+	 * datagram socket to the scheduler
+	 * 
+	 * @param message
+	 */
+	public void send(byte[] message) {
 
 		// DatagramPackets store their messages as byte arrays.
-		// Convert the Map into bytes according to the platform's
-		// default character encoding, storing the result into a new
-		// byte array.
-		byte[] floorData = map2Bytes(message);
 
 		// Construct a datagram packet that is to be sent to a specified port
 		// on a specified host.
@@ -61,7 +58,7 @@ public class FloorDataGramCommunicator {
 		// address of the local host.
 		// 5000 - the destination port number on the destination host.
 		try {
-			sendPacket = new DatagramPacket(floorData, floorData.length, InetAddress.getLocalHost(), 5000);
+			sendPacket = new DatagramPacket(message, message.length, InetAddress.getLocalHost(), 5000);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -73,7 +70,7 @@ public class FloorDataGramCommunicator {
 		int len = sendPacket.getLength();
 		System.out.println("Length: " + len);
 		System.out.print("Containing: ");
-		System.out.println(message);
+		FloorDataMessage.printMessage(message);
 
 		// Send the datagram packet to the scheduler via the send socket.
 
@@ -87,6 +84,9 @@ public class FloorDataGramCommunicator {
 		System.out.println("Client: Packet sent.\n");
 	}
 
+	/**
+	 * Receives a datagram packet from the scheduler as a byte array
+	 */
 	public void receive() {
 		// Construct a DatagramPacket for receiving packets up
 		// to 100 bytes long (the length of the byte array).
@@ -121,28 +121,5 @@ public class FloorDataGramCommunicator {
 
 	public void closeReceiveSocket() {
 		receiveSocket.close();
-	}
-
-	/**
-	 * Convert generic Map to byte array
-	 * 
-	 * @param mapToConvert The Map to convert to a byte array
-	 * @return A byte array representation of the map
-	 */
-	private byte[] map2Bytes(Map<?, ?> mapToConvert) {
-		ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
-		byte[] convertedBytes = null;
-
-		try {
-			ObjectOutputStream out = new ObjectOutputStream(byteOutputStream);
-			out.writeObject(mapToConvert);
-			out.flush();
-			convertedBytes = byteOutputStream.toByteArray();
-		} catch (IOException ex) {
-			// ignore close exception
-			System.out.println(ex);
-		}
-
-		return convertedBytes;
 	}
 }
