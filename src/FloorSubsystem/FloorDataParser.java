@@ -1,6 +1,7 @@
 package FloorSubsystem;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
-import SharedResources.FloorDataMessage;
+import SharedResources.*;
 
 /**
  * @author Jason Gao
@@ -19,7 +20,7 @@ public class FloorDataParser {
 
 	/**
 	 * Opens a floor data file, parses each line into a byte array, then adds the
-	 * byte array to the floor subsytem list of byte array messages
+	 * byte array to the floor subsystem list of byte array messages
 	 * 
 	 * @param filename The floor data file name
 	 */
@@ -33,29 +34,28 @@ public class FloorDataParser {
 				String floorData = fileReader.nextLine(); // This looks like 14:05:15.0 2 Up 4
 				List<String> lineAsArrayList = this.str2ArrayList(floorData, " "); // Looks like [14:05:15.0, 2, Up, 4]
 
-				FloorDataMessage fdm = new FloorDataMessage();
-
-				// add message header
-				fdm.addHeader();
-
-				// add timestamp
+				// get timestamp
 				float timestamp = this.timestampToFloat(lineAsArrayList.get(0));
-				fdm.addTimestamp(timestamp);
 
-				// add current floor
+				// get current floor
 				int currFloor = Integer.parseInt(lineAsArrayList.get(1));
-				fdm.addCurrentFloor(currFloor);
 
-				// add elevator direction
+				// get elevator direction
 				String direction = lineAsArrayList.get(2);
-				fdm.addDirection(direction);
 
-				// add destination floor
-				int desinationFloor = Integer.parseInt(lineAsArrayList.get(3));
-				fdm.addDestinationFloor(desinationFloor);
-
-				// add the floor message to the floor subsytem list of byte array messages
-				FloorSystem.floorDataEntry.add(fdm.getMessage());
+				// get destination floor
+				int destinationFloor = Integer.parseInt(lineAsArrayList.get(3));
+				
+				FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
+				
+				try {
+					// add the floor message to the floor subsystem list of byte array messages
+					byte[] fdmsSerialized = SerializeUtils.serialize(fdms);
+					FloorSystem.floorDataEntry.add(fdmsSerialized);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			fileReader.close();
 		} catch (FileNotFoundException e) {

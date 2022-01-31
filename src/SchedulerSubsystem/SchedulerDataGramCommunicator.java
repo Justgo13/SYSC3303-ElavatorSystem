@@ -43,7 +43,7 @@ public class SchedulerDataGramCommunicator {
       // Construct a DatagramPacket for receiving packets up 
       // to 100 bytes long (the length of the byte array).
 
-      byte data[] = new byte[100];
+      byte data[] = new byte[200];
       receivePacket = new DatagramPacket(data, data.length);
       System.out.println("Server: Waiting for Packet.\n");
 
@@ -65,15 +65,16 @@ public class SchedulerDataGramCommunicator {
       int len = receivePacket.getLength();
       System.out.println("Length: " + len);
       
-      //Unpacking message
-      if(data[0] == 0) {
-    	  System.out.println("Message type: Floor Data");
-    	  float msgTime = ByteParser.bytesToFloat(Arrays.copyOfRange(data, 1, 5));
-    	  int msgFloor = ByteParser.bytesToInt(Arrays.copyOfRange(data, 5, 9));
-    	  int msgDirection = data[9];
-    	  int msgDestination = ByteParser.bytesToInt(Arrays.copyOfRange(data, 10, 14));
-    	  System.out.println(String.format("	Time: %f\n	Floor: %d\n	Direction: %d\n	Car Button: %d\n", msgTime, msgFloor, msgDirection, msgDestination));
-      }
+      //Unpacking message (for now we assume that the message passed is FloorDataMessageSerializable)
+      //Clean up this try catch later
+      try {
+    	  FloorDataMessageSerializable message = SerializeUtils.deserialize(data);
+    	  System.out.println(message);
+	  } catch (ClassNotFoundException e1) {
+		  e1.printStackTrace();
+	  } catch (IOException e1) {
+		  e1.printStackTrace();
+	  }
       
       // Slow things down (wait 5 seconds)
       try {
@@ -114,8 +115,8 @@ public class SchedulerDataGramCommunicator {
       System.out.println("Destination host port: " + sendPacket.getPort());
       len = sendPacket.getLength();
       System.out.println("Length: " + len);
-      System.out.print("Containing: ");
-      System.out.println(new String(sendPacket.getData(),0,len));
+      //System.out.print("Containing: ");
+      //System.out.println(new String(sendPacket.getData(),0,len));
       // or (as we should be sending back the same thing)
       // System.out.println(received); 
         
