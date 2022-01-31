@@ -11,10 +11,10 @@ public class FloorDataMessageSerializable implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private float timeStamp;
 	private int floorNumber;
-	private byte direction;
+	private String direction;
 	private int destinationNumber;
 
-	public FloorDataMessageSerializable(float timeStamp, int floorNumber, byte direction, int destinationNumber) {
+	public FloorDataMessageSerializable(float timeStamp, int floorNumber, String direction, int destinationNumber) {
 		this.timeStamp = timeStamp;
 		this.floorNumber = floorNumber;
 		this.direction = direction;
@@ -25,7 +25,11 @@ public class FloorDataMessageSerializable implements Serializable {
 	 * toString method to print contents of floor data message
 	 */
 	public String toString() {
-		return String.format("Time: %.2f\n	Floor: %d\n	Direction: %d\n	Car Button: %d\n", timeStamp, floorNumber, direction, destinationNumber);
+<<<<<<< Updated upstream
+		return String.format("Floor message: \n	Time: %.2f\n	Floor: %d\n	Direction: %s\n	Car Button: %d", timeStamp, floorNumber, direction, destinationNumber);
+=======
+		return String.format("Time: %.2f\n	Floor: %d\n	Direction: %s\n	Car Button: %d\n", timeStamp, floorNumber, direction, destinationNumber);
+>>>>>>> Stashed changes
 	}
 	
 	public float getTimeStamp() {
@@ -36,7 +40,7 @@ public class FloorDataMessageSerializable implements Serializable {
 		return floorNumber;
 	}
 	
-	public byte getDirection() {
+	public String getDirection() {
 		return direction;
 	}
 	
