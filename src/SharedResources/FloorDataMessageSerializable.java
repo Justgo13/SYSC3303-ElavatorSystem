@@ -1,3 +1,4 @@
+package SharedResources;
 import java.io.Serializable;
 
 /**
