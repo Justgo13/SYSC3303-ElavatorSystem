@@ -8,6 +8,7 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.Arrays;
 
 public class SchedulerDataGramCommunicator {
 
@@ -61,11 +62,16 @@ public class SchedulerDataGramCommunicator {
       System.out.println("Host port: " + receivePacket.getPort());
       int len = receivePacket.getLength();
       System.out.println("Length: " + len);
-      System.out.print("Containing: " );
-
-      // Form a String from the byte array.
-      String received = new String(data,0,len);   
-      System.out.println(received + "\n");
+      
+      //Unpacking message
+      if(data[0] == 0) {
+    	  System.out.println("Message type: Floor Data");
+    	  float msgTime = ByteParser.bytesToFloat(Arrays.copyOfRange(data, 1, 5));
+    	  int msgFloor = ByteParser.bytesToInt(Arrays.copyOfRange(data, 5, 9));
+    	  int msgDirection = data[9];
+    	  int msgDestination = ByteParser.bytesToInt(Arrays.copyOfRange(data, 10, 14));
+    	  System.out.println(String.format("	Time: %f\n	Floor: %d\n	Direction: %d\n	Car Button: %d\n", msgTime, msgFloor, msgDirection, msgDestination));
+      }
       
       // Slow things down (wait 5 seconds)
       try {
