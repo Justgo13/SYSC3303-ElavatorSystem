@@ -11,19 +11,19 @@ import FloorSubsystem.FloorSystem;
  *
  */
 public class SchedulerSystem {
-	//private static final SchedulerDataGramCommunicator communicator = new SchedulerDataGramCommunicator();
 	
-	/** Iteration 1 sequence
+	/** 
+	 * Start the floor and elevator subsystems.
+	 * 
+	 * Iteration 1 sequence
 	 * 1. floor reads events from file
 	 * 2. floor sends inputs to scheduler
-	 * 3. elevator makes calls to scheduler? ignore this
-	 * 4. scheduler sends data back to elevator //TODO
+	 * 4. scheduler sends data back to elevator
 	 * 5. elevator sends data back to scheduler
 	 * 6. scheduler sends data back to floor
 	 * 7. done
 	 */
 	public static void main(String[] args) {
-		//communicator.receiveAndEcho();
 		SchedulerDataGramCommunicator communicator = new SchedulerDataGramCommunicator();
 		Thread floorSystemThread = new Thread(new FloorSystem("floorData.txt", communicator), "Floor System");
 		Thread elevatorSystemThread = new Thread(new ElevatorSystem(communicator), "Elevator System");

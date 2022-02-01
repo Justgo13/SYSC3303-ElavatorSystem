@@ -1,5 +1,10 @@
 package SharedResources;
 
+/**
+ * @author Michael Quach
+ * 
+ *         Holds an area of shared memory to be accessed with mutual exclusion.
+ */
 public class Box {
 	private byte[] contents;
 	private boolean empty;
@@ -9,6 +14,9 @@ public class Box {
 		empty = true;
 	}
 	
+	/**
+	 * @param item the Datagram packet to store
+	 */
 	public synchronized void put(byte[] item) {
 		while (!empty) {
 			try {
@@ -22,6 +30,9 @@ public class Box {
 		notifyAll();
 	}
 	
+	/**
+	 * @return the available Datagram packet and remove it
+	 */
 	public synchronized byte[] get() {
 		while (empty) {
 			try {
