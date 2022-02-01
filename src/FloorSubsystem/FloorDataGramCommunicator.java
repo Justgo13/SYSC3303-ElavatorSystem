@@ -19,21 +19,17 @@ import SharedResources.SerializeUtils;
  */
 public class FloorDataGramCommunicator {
 
-	private DatagramPacket sendPacket, receivePacket;
-	private DatagramSocket sendSocket, receiveSocket;
+	private DatagramPacket sendFloorDataPacket, receiveFloorPacket;
+	private DatagramSocket sendReceiveSocket;
 
 	public FloorDataGramCommunicator() {
 
 		try {
 			// Construct a datagram socket and bind it to any available
 			// port on the local host machine. This socket will be used to
-			// send UDP Datagram packets.
-			sendSocket = new DatagramSocket();
+			// send and receive UDP Datagram packets.
+			sendReceiveSocket = new DatagramSocket();
 
-			// Construct a datagram socket and bind it to any available
-			// port on the local host machine. This socket will be used to
-			// receive UDP Datagram packets.
-			receiveSocket = new DatagramSocket();
 		} catch (SocketException se) { // Can't create the socket.
 			se.printStackTrace();
 			System.exit(1);
@@ -42,11 +38,12 @@ public class FloorDataGramCommunicator {
 
 	/**
 	 * Sends a message contained in a byte array using a datagram packet and
-	 * datagram socket to the scheduler
+	 * datagram socket to the scheduler. Also receives the same message from the
+	 * scheduler
 	 * 
 	 * @param message
 	 */
-	public void send(byte[] message) {
+	public void sendAndReceive(byte[] message) {
 
 		// DatagramPackets store their messages as byte arrays.
 
@@ -63,19 +60,64 @@ public class FloorDataGramCommunicator {
 		// address of the local host.
 		// 5000 - the destination port number on the destination host.
 		try {
-			sendPacket = new DatagramPacket(message, message.length, InetAddress.getLocalHost(), 5000);
+			sendFloorDataPacket = new DatagramPacket(message, message.length, InetAddress.getLocalHost(), 5000);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
 		System.out.println("Client: Sending packet:");
-		System.out.println("To host: " + sendPacket.getAddress());
-		System.out.println("Destination host port: " + sendPacket.getPort());
-		int len = sendPacket.getLength();
+		System.out.println("To host: " + sendFloorDataPacket.getAddress());
+		System.out.println("Destination host port: " + sendFloorDataPacket.getPort());
+		int len = sendFloorDataPacket.getLength();
 		System.out.println("Length: " + len);
 		System.out.print("Containing: ");
-		
+
+		// de-serialize message for printing to console
+		this.deserializeMessageAndPrint(message);
+
+		// Send the datagram packet to the scheduler via the send socket.
+
+		try {
+			sendReceiveSocket.send(sendFloorDataPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		System.out.println("Client: Packet sent.\n");
+
+		// Construct a DatagramPacket for receiving packets up
+		// to 300 bytes long (the length of the byte array).
+
+		byte receivedFloorData[] = new byte[300];
+		receiveFloorPacket = new DatagramPacket(receivedFloorData, receivedFloorData.length);
+
+		try {
+			// Block until a datagram is received via receive socket.
+			sendReceiveSocket.receive(receiveFloorPacket);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		// Process the received datagram.
+		System.out.println("Client: Packet received:");
+		System.out.println("From host: " + receiveFloorPacket.getAddress());
+		System.out.println("Host port: " + receiveFloorPacket.getPort());
+		len = receiveFloorPacket.getLength();
+		System.out.println("Length: " + len);
+		System.out.print("Containing: ");
+
+		// de-serialize message for printing to console
+		this.deserializeMessageAndPrint(message);
+	}
+
+	/**
+	 * De-serialize the message and print the message
+	 * @param message The serialized message
+	 */
+	private void deserializeMessageAndPrint(byte[] message) {
 		// de-serialize message for printing to console
 		try {
 			FloorDataMessageSerializable messageDeserialize = SerializeUtils.deserialize(message);
@@ -87,56 +129,12 @@ public class FloorDataGramCommunicator {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-  	  
-
-		// Send the datagram packet to the scheduler via the send socket.
-
-		try {
-			sendSocket.send(sendPacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		System.out.println("Client: Packet sent.\n");
 	}
 
 	/**
-	 * Receives a datagram packet from the scheduler as a byte array
+	 * Closes the send/receive socket
 	 */
-	public void receive() {
-		// Construct a DatagramPacket for receiving packets up
-		// to 100 bytes long (the length of the byte array).
-
-		byte data[] = new byte[300];
-		receivePacket = new DatagramPacket(data, data.length);
-
-		try {
-			// Block until a datagram is received via recieve socket.
-			receiveSocket.receive(receivePacket);
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		// Process the received datagram.
-		System.out.println("Client: Packet received:");
-		System.out.println("From host: " + receivePacket.getAddress());
-		System.out.println("Host port: " + receivePacket.getPort());
-		int len = receivePacket.getLength();
-		System.out.println("Length: " + len);
-		System.out.print("Containing: ");
-
-		// Form a String from the byte array.
-		String received = new String(data, 0, len);
-		System.out.println(received);
-	}
-
-	public void closeSendSocket() {
-		sendSocket.close();
-	}
-
-	public void closeReceiveSocket() {
-		receiveSocket.close();
+	public void closeSendReceiveSocket() {
+		sendReceiveSocket.close();
 	}
 }

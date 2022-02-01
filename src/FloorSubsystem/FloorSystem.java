@@ -26,7 +26,7 @@ public class FloorSystem {
 	 */
 	public void sendFloorData() {
 		for (byte[] floorEntry : floorDataEntry) {
-			communicator.send(floorEntry);
+			communicator.sendAndReceive(floorEntry);
 		}
 	}
 
