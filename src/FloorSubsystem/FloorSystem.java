@@ -13,11 +13,9 @@ public class FloorSystem {
 	private final FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
 	private final FloorDataGramCommunicator communicator = new FloorDataGramCommunicator(); // reference to the floor
 																							// subsystem communicator
-
-	public static List<byte[]> floorDataEntry; // list of floor entries where each entry is a byte array
+	private static List<byte[]> floorDataEntry = new ArrayList<byte[]>();; // list of floor entries where each entry is a byte array
 
 	public FloorSystem(String floorDataFilename) {
-		floorDataEntry = new ArrayList<byte[]>();
 		parser.parseFile(floorDataFilename);
 	}
 
@@ -27,6 +25,7 @@ public class FloorSystem {
 	public void sendFloorData() {
 		for (byte[] floorEntry : floorDataEntry) {
 			communicator.send(floorEntry);
+			communicator.receive();
 		}
 	}
 
@@ -38,6 +37,14 @@ public class FloorSystem {
 		String floorDataFilename = "floorData.txt";
 		FloorSystem fs = new FloorSystem(floorDataFilename);
 		fs.sendFloorData();
+	}
+	
+	/**
+	 * Method for adding to the floor data entry list
+	 * @param floorData
+	 */
+	public static void addFloorEntry(byte[] floorData) {
+		floorDataEntry.add(floorData);
 	}
 
 }

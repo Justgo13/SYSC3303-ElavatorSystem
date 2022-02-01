@@ -51,7 +51,7 @@ public class FloorDataParser {
 				try {
 					// add the floor message to the floor subsystem list of byte array messages
 					byte[] fdmsSerialized = SerializeUtils.serialize(fdms);
-					FloorSystem.floorDataEntry.add(fdmsSerialized);
+					FloorSystem.addFloorEntry(fdmsSerialized);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
