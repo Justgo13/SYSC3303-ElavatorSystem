@@ -1,4 +1,5 @@
 package FloorSubsystem;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -6,7 +7,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import SharedResources.FloorDataMessage;
+import SharedResources.FloorDataMessageSerializable;
+import SharedResources.SerializeUtils;
 
 /**
  * @author Jason Gao
@@ -73,7 +75,19 @@ public class FloorDataGramCommunicator {
 		int len = sendPacket.getLength();
 		System.out.println("Length: " + len);
 		System.out.print("Containing: ");
-		FloorDataMessage.printMessage(message);
+		
+		// de-serialize message for printing to console
+		try {
+			FloorDataMessageSerializable messageDeserialize = SerializeUtils.deserialize(message);
+			System.out.println(messageDeserialize);
+		} catch (ClassNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+  	  
 
 		// Send the datagram packet to the scheduler via the send socket.
 
