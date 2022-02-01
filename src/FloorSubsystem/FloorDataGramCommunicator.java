@@ -20,7 +20,7 @@ import SharedResources.SerializeUtils;
 public class FloorDataGramCommunicator {
 
 	private DatagramPacket sendFloorDataPacket, receiveFloorPacket;
-	private DatagramSocket sendReceiveSocket;
+	private DatagramSocket floorSocket;
 
 	public FloorDataGramCommunicator() {
 
@@ -28,7 +28,7 @@ public class FloorDataGramCommunicator {
 			// Construct a datagram socket and bind it to any available
 			// port on the local host machine. This socket will be used to
 			// send and receive UDP Datagram packets.
-			sendReceiveSocket = new DatagramSocket();
+			floorSocket = new DatagramSocket();
 
 		} catch (SocketException se) { // Can't create the socket.
 			se.printStackTrace();
@@ -38,12 +38,11 @@ public class FloorDataGramCommunicator {
 
 	/**
 	 * Sends a message contained in a byte array using a datagram packet and
-	 * datagram socket to the scheduler. Also receives the same message from the
-	 * scheduler
+	 * datagram socket to the scheduler.
 	 * 
 	 * @param message
 	 */
-	public void sendAndReceive(byte[] message) {
+	public void send(byte[] message) {
 
 		// DatagramPackets store their messages as byte arrays.
 
@@ -79,14 +78,19 @@ public class FloorDataGramCommunicator {
 		// Send the datagram packet to the scheduler via the send socket.
 
 		try {
-			sendReceiveSocket.send(sendFloorDataPacket);
+			floorSocket.send(sendFloorDataPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
 		System.out.println("Client: Packet sent.\n");
+	}
 
+	/**
+	 * Receives messages from the scheduler
+	 */
+	public void receive() {
 		// Construct a DatagramPacket for receiving packets up
 		// to 300 bytes long (the length of the byte array).
 
@@ -95,7 +99,7 @@ public class FloorDataGramCommunicator {
 
 		try {
 			// Block until a datagram is received via receive socket.
-			sendReceiveSocket.receive(receiveFloorPacket);
+			floorSocket.receive(receiveFloorPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
@@ -105,16 +109,17 @@ public class FloorDataGramCommunicator {
 		System.out.println("Client: Packet received:");
 		System.out.println("From host: " + receiveFloorPacket.getAddress());
 		System.out.println("Host port: " + receiveFloorPacket.getPort());
-		len = receiveFloorPacket.getLength();
+		int len = receiveFloorPacket.getLength();
 		System.out.println("Length: " + len);
 		System.out.print("Containing: ");
 
 		// de-serialize message for printing to console
-		this.deserializeMessageAndPrint(message);
+		this.deserializeMessageAndPrint(receiveFloorPacket.getData());
 	}
 
 	/**
 	 * De-serialize the message and print the message
+	 * 
 	 * @param message The serialized message
 	 */
 	private void deserializeMessageAndPrint(byte[] message) {
@@ -135,6 +140,6 @@ public class FloorDataGramCommunicator {
 	 * Closes the send/receive socket
 	 */
 	public void closeSendReceiveSocket() {
-		sendReceiveSocket.close();
+		floorSocket.close();
 	}
 }
