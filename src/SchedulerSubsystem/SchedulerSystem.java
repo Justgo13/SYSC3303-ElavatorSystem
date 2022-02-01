@@ -1,13 +1,17 @@
 package SchedulerSubsystem;
+
+import ElevatorSubsystem.ElevatorSystem;
+import FloorSubsystem.FloorSystem;
+
 /**
- * @author Kevin Quach
+ * @author Kevin Quach, Michael Quach
  * 
  *         For iteration 1, the scheduler subsystem is in charge of acting as a pipeline of data between the floor subsystem and the elevator subsystem.
  *         In the future, it should be multi-threaded in order to handle multiple elevators simultaneously.
  *
  */
 public class SchedulerSystem {
-	private static final SchedulerDataGramCommunicator communicator = new SchedulerDataGramCommunicator();
+	//private static final SchedulerDataGramCommunicator communicator = new SchedulerDataGramCommunicator();
 	
 	/** Iteration 1 sequence
 	 * 1. floor reads events from file
@@ -19,7 +23,12 @@ public class SchedulerSystem {
 	 * 7. done
 	 */
 	public static void main(String[] args) {
-		communicator.receiveAndEcho();
+		//communicator.receiveAndEcho();
+		SchedulerDataGramCommunicator communicator = new SchedulerDataGramCommunicator();
+		Thread floorSystemThread = new Thread(new FloorSystem("floorData.txt", communicator), "Floor System");
+		Thread elevatorSystemThread = new Thread(new ElevatorSystem(communicator), "Elevator System");
+		
+		floorSystemThread.start();
+		elevatorSystemThread.start();
 	}
-
 }
