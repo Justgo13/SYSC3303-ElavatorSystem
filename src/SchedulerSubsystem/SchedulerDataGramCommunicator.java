@@ -14,21 +14,41 @@ import SharedResources.*;
 
 public class SchedulerDataGramCommunicator {
 
-   DatagramPacket sendPacket, receivePacket;
-   DatagramSocket sendSocket, receiveSocket;
+   //private DatagramPacket sendPacket, receivePacket;
+   private DatagramSocket schedulerSocket;
+   private int sendPort;
 
-   public SchedulerDataGramCommunicator()
+   public SchedulerDataGramCommunicator(int schedulerPort)
    {
       try {
          // Construct a datagram socket and bind it to any available 
          // port on the local host machine. This socket will be used to
          // send UDP Datagram packets.
-         sendSocket = new DatagramSocket();
 
          // Construct a datagram socket and bind it to port 5000 
          // on the local host machine. This socket will be used to
          // receive UDP Datagram packets.
-         receiveSocket = new DatagramSocket(5000);
+         schedulerSocket = new DatagramSocket(schedulerPort);
+         // to test socket timeout (2 seconds)
+         //receiveSocket.setSoTimeout(2000);
+      } catch (SocketException se) {
+         se.printStackTrace();
+         System.exit(1);
+      } 
+   }
+   
+   public SchedulerDataGramCommunicator(int schedulerPort, int subsystemPort)
+   {
+      try {
+         // Construct a datagram socket and bind it to any available 
+         // port on the local host machine. This socket will be used to
+         // send UDP Datagram packets.
+         sendPort = subsystemPort;
+
+         // Construct a datagram socket and bind it to port 5000 
+         // on the local host machine. This socket will be used to
+         // receive UDP Datagram packets.
+         schedulerSocket = new DatagramSocket(schedulerPort);
          
          // to test socket timeout (2 seconds)
          //receiveSocket.setSoTimeout(2000);
@@ -37,20 +57,23 @@ public class SchedulerDataGramCommunicator {
          System.exit(1);
       } 
    }
-
-   public void receiveAndEcho()
+   /**
+    * make sure to do null checks
+    * @return
+    */
+   public FloorDataMessageSerializable receive()
    {
-      // Construct a DatagramPacket for receiving packets up 
-      // to 100 bytes long (the length of the byte array).
+   	  // Construct a DatagramPacket for receiving packets up 
+      // to 300 bytes long (the length of the byte array).
 
-      byte data[] = new byte[200];
-      receivePacket = new DatagramPacket(data, data.length);
+      byte data[] = new byte[300];
+      DatagramPacket receivePacket = new DatagramPacket(data, data.length);
       System.out.println("Server: Waiting for Packet.\n");
 
       // Block until a datagram packet is received from receiveSocket.
       try {        
          System.out.println("Waiting..."); // so we know we're waiting
-         receiveSocket.receive(receivePacket);
+         schedulerSocket.receive(receivePacket);
       } catch (IOException e) {
          System.out.print("IO Exception: likely:");
          System.out.println("Receive Socket Timed Out.\n" + e);
@@ -65,26 +88,35 @@ public class SchedulerDataGramCommunicator {
       int len = receivePacket.getLength();
       System.out.println("Length: " + len);
       
+      sendPort = receivePacket.getPort();
+      //could probably set a field for received address here
+      
       //Unpacking message (for now we assume that the message passed is FloorDataMessageSerializable)
       //Clean up this try catch later
       try {
     	  FloorDataMessageSerializable message = SerializeUtils.deserialize(data);
     	  System.out.println(message);
+    	  return message;
 	  } catch (ClassNotFoundException e1) {
 		  e1.printStackTrace();
 	  } catch (IOException e1) {
 		  e1.printStackTrace();
 	  }
-      
-      // Slow things down (wait 5 seconds)
+	  return null;
+   }
+   
+   public void send(FloorDataMessageSerializable message)
+   {
+      // Construct a DatagramPacket for sending packets up 
+      // to 300 bytes long (the length of the byte array).
+
+      byte data[] = new byte[300];
       try {
-          Thread.sleep(5000);
-      } catch (InterruptedException e ) {
-          e.printStackTrace();
-          System.exit(1);
-      }
- 
-      // Create a new datagram packet containing the string received from the client.
+		data = SerializeUtils.serialize(message);
+	  } catch (IOException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	  }
 
       // Construct a datagram packet that is to be sent to a specified port 
       // on a specified host.
@@ -106,14 +138,19 @@ public class SchedulerDataGramCommunicator {
       //     so we extract the port that the client used to send us the
       //     datagram, and use that as the destination port for the echoed
       //     packet.
-
-      sendPacket = new DatagramPacket(data, receivePacket.getLength(),
-                               receivePacket.getAddress(), receivePacket.getPort());
+      DatagramPacket sendPacket = null;
+      try {
+		sendPacket = new DatagramPacket(data, data.length,
+			  InetAddress.getLocalHost(), sendPort); //TODO: allow for different subsystems to be on different IP addresses
+	  } catch (UnknownHostException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	  }
 
       System.out.println( "Server: Sending packet:");
       System.out.println("To host: " + sendPacket.getAddress());
       System.out.println("Destination host port: " + sendPacket.getPort());
-      len = sendPacket.getLength();
+      int len = sendPacket.getLength();
       System.out.println("Length: " + len);
       //System.out.print("Containing: ");
       //System.out.println(new String(sendPacket.getData(),0,len));
@@ -122,17 +159,19 @@ public class SchedulerDataGramCommunicator {
         
       // Send the datagram packet to the client via the send socket. 
       try {
-         sendSocket.send(sendPacket);
+         schedulerSocket.send(sendPacket);
       } catch (IOException e) {
          e.printStackTrace();
          System.exit(1);
       }
-
       System.out.println("Server: packet sent");
-
-      // We're finished, so close the sockets.
-      sendSocket.close();
-      receiveSocket.close();
    }
+   
+   /**
+	 * Closes the scheduler's socket
+	 */
+	public void closeSocket() {
+		schedulerSocket.close();
+	}
 }
 
