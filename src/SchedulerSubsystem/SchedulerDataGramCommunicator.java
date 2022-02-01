@@ -14,7 +14,6 @@ import SharedResources.*;
 
 public class SchedulerDataGramCommunicator {
 
-   //private DatagramPacket sendPacket, receivePacket;
    private DatagramSocket schedulerSocket;
    private int sendPort;
 
