@@ -31,7 +31,7 @@ public class FloorSystem implements Runnable{
 	
 	/**
 	 * Method for adding to the floor data entry list
-	 * @param floorData
+	 * @param floorData The floor message as bytes
 	 */
 	public static void addFloorEntry(byte[] floorData) {
 		floorDataEntry.add(floorData);

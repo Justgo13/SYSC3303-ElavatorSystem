@@ -28,6 +28,7 @@ public class SerializeUtils {
 
     /**
      * Deserialize a byte array to obtain its original value
+     * @param <T> A generic operator
      * @param data the serialized data
      * @return the deserialized object from the serialized data
      * @throws IOException when deserialization fails

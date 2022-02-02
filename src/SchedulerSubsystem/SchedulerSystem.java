@@ -22,6 +22,8 @@ public class SchedulerSystem {
 	 * 5. elevator sends data back to scheduler
 	 * 6. scheduler sends data back to floor
 	 * 7. done
+	 * 
+	 * @param args A list of string args
 	 */
 	public static void main(String[] args) {
 		SchedulerDataGramCommunicator communicator = new SchedulerDataGramCommunicator();
