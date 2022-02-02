@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import SchedulerSubsystem.SchedulerDataGramCommunicator;
 import SharedResources.*;
 
 /**
@@ -17,6 +18,11 @@ import SharedResources.*;
  *         A class for parsing floor data file input
  */
 public class FloorDataParser {
+
+	private SchedulerDataGramCommunicator communicator;
+	public FloorDataParser(SchedulerDataGramCommunicator communicator) {
+		this.communicator = communicator;
+	}
 
 	/**
 	 * Opens a floor data file, parses each line into a byte array, then adds the
@@ -51,7 +57,7 @@ public class FloorDataParser {
 				try {
 					// add the floor message to the floor subsystem list of byte array messages
 					byte[] fdmsSerialized = SerializeUtils.serialize(fdms);
-					FloorSystem.addFloorEntry(fdmsSerialized);
+					communicator.addFloorEntry(fdmsSerialized);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

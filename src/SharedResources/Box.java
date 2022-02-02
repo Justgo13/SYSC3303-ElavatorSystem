@@ -1,5 +1,7 @@
 package SharedResources;
 
+import java.io.IOException;
+
 /**
  * @author Michael Quach
  * 
@@ -19,6 +21,7 @@ public class Box {
 	 * @param item the Datagram packet to store
 	 */
 	public synchronized void put(byte[] item) {
+		System.out.println("Empty" + empty);
 		while (!empty) {
 			try {
 				wait();
