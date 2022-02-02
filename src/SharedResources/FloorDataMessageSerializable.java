@@ -28,18 +28,34 @@ public class FloorDataMessageSerializable implements Serializable {
 		return String.format("Floor message: \n	Time: %.2f\n	Floor: %d\n	Direction: %s\n	Car Button: %d", timeStamp, floorNumber, direction, destinationNumber);
 	}
 	
+	/**
+	 * 
+	 * @return The timestamp as a float
+	 */
 	public float getTimeStamp() {
 		return timeStamp;
 	}
 	
+	/**
+	 * 
+	 * @return The current floor number in the message
+	 */
 	public int getFloorNumber() {
 		return floorNumber;
 	}
 	
+	/**
+	 * 
+	 * @return The direction (up/down) in the message
+	 */
 	public String getDirection() {
 		return direction;
 	}
 	
+	/**
+	 * 
+	 * @return The destination floor of the user request
+	 */
 	public int getDestinationNumber() {
 		return destinationNumber;
 	}
