@@ -29,14 +29,16 @@ public class ElevatorSystem implements Runnable {
 	 */
 	@Override
 	public void run() {
-		//assumes that only one message is sent, which is to be sent back
-		byte[] message = communicator.receiveFromFloor();
-		try {
-			System.out.println("Elevator System received message from Scheduler: \n" + SerializeUtils.deserialize(message));
-		} catch (ClassNotFoundException | IOException e) {
-			e.printStackTrace();
+		//Note that this elevator system continues to listen to messages from the scheduler, and does not yet terminate
+		while (true) {
+			byte[] message = communicator.receiveFromFloor();
+			try {
+				System.out.println("Elevator System received message from Scheduler: \n" + SerializeUtils.deserialize(message));
+			} catch (ClassNotFoundException | IOException e) {
+				e.printStackTrace();
+			}
+			System.out.println("Sending message from Elevator System to Scheduler.");
+			communicator.sendToFloor(message);			
 		}
-		System.out.println("Sending message from Elevator System to Scheduler.");
-		communicator.sendToFloor(message);
 	}
 }
