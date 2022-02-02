@@ -15,6 +15,7 @@ public class Box {
 	}
 	
 	/**
+	 * Puts an item in the box as long as it is empty
 	 * @param item the Datagram packet to store
 	 */
 	public synchronized void put(byte[] item) {
@@ -48,6 +49,9 @@ public class Box {
 		return item;
 	}
 	
+	/**
+	 * @return True if the box is empty, false otherwise
+	 */
 	public synchronized boolean checkEmpty() {
 		return empty;
 	}
