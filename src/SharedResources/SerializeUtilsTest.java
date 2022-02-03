@@ -29,13 +29,9 @@ class SerializeUtilsTest {
 			assertEquals(originalObject.getDestinationNumber(), newObject.getDestinationNumber());
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			fail("Error Occured");
-			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			fail("Error Occured");
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		
 	}

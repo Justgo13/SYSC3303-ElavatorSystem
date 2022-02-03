@@ -14,7 +14,7 @@ import SharedResources.SerializeUtils;
  */
 public class ElevatorSystem implements Runnable {
 	private SchedulerDataGramCommunicator communicator;
-	private Elevator elevator = new Elevator(1);
+	private Elevator elevator = new Elevator(1, false);
 	
 	/**
 	 * Constructs an ElevatorSystem.
