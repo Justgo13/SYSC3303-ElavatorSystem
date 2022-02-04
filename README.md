@@ -1,7 +1,7 @@
 <h1> SYSC 3303 Elevator Project <h1>
 <h3> L4 Group 8</h3>
 <ul>
-  <li> Jason Gao </li>
+  <li> Jason Gao 101108461 </li>
   <li> Shashaank Srivastava 101105658 </li>
   <li> Kevin Quach 101115704</li>
   <li> Michael Quach 101179729</li>
