@@ -1,23 +1,56 @@
 package SchedulerSubsystem;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
+import java.util.concurrent.TimeUnit;
 
+
+import org.junit.Assert;
+
+/**
+ * 
+ * @author Shashaank
+ * 		Testing 
+ *
+ */
 class SchedulerDataGramCommunicatorTest {
 
 	@Test
-	void testSchedularDataGramCommunicator() {
-		SchedulerDataGramCommunicator sdg = new SchedulerDataGramCommunicator();
+	void testElevatorToFloor() {
+		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
 		String testString = "Hello, I love testing";
+		
 		byte[] packet = testString.getBytes();
-		sdg.sendToElevator(packet);
-		byte[] returned = sdg.receiveFromElevator();
-		org.junit.Assert.assertEquals(packet, returned);
+		dsg.sendToElevator(packet);
 		
-		
+		byte[] returned = dsg.receiveFromFloor();
+		Assert.assertEquals(packet, returned);
 	}
+	
+	@Test
+	void testFloorToElevator() {
+		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
+		String testString = "Hello, I love testing";
+		
+		byte[] packet = testString.getBytes();
+		dsg.sendToFloor(packet);
+		
+		byte[] returned = dsg.receiveFromElevator();
+		Assert.assertEquals(packet, returned);
+	}	
+	
+	@Test
+	void tesFloorToElevatorWait() {
+		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
+		String testString = "Hello, I love testing";
+		
+		byte[] returned = dsg.receiveFromElevator();
 
+		byte[] packet = testString.getBytes();
+		dsg.sendToFloor(packet);
+		
+		Assert.assertEquals(packet, returned);
+	}	
 }

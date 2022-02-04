@@ -14,10 +14,10 @@ import SharedResources.SerializeUtils;
  *
  */
 public class FloorSystem implements Runnable{
-	private final FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
+	private FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
 	private static List<byte[]> floorDataEntry = new ArrayList<byte[]>(); // list of floor entries where each entry is a byte array
-	
 	private SchedulerDataGramCommunicator sharedCommunicator;
+	private Floor floor;
 
 	/**
 	 * Constructs a FloorSystem.
@@ -26,6 +26,7 @@ public class FloorSystem implements Runnable{
 	 */
 	public FloorSystem(String floorDataFilename, SchedulerDataGramCommunicator sharedCommunicator) {
 		this.sharedCommunicator = sharedCommunicator;
+		floor = new Floor(); 
 		parser.parseFile(floorDataFilename);
 	}
 	
