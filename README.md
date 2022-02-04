@@ -4,7 +4,7 @@
   <li> Jason Gao </li>
   <li> Kevin Quach </li>
   <li> Michael Quach </li>
-  <li> Shashaank Srivastava </li>
+  <li> Shashaank Srivastava 101105658 </li>
   <li> Harjap Gill </li>
 </ul>
 
