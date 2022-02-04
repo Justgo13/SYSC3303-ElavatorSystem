@@ -2,10 +2,10 @@
 <h3> L4 Group 8</h3>
 <ul>
   <li> Jason Gao </li>
-  <li> Kevin Quach </li>
-  <li> Michael Quach </li>
   <li> Shashaank Srivastava 101105658 </li>
-  <li> Harjap Gill </li>
+  <li> Kevin Quach 101115704</li>
+  <li> Michael Quach 101179729</li>
+  <li> Harjap Gill - 101 124 926 </li>
 </ul>
 
 <h2> Iteration 0 </h2>
