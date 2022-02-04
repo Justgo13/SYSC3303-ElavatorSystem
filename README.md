@@ -5,7 +5,7 @@
   <li> Kevin Quach </li>
   <li> Michael Quach </li>
   <li> Shashaank Srivastava </li>
-  <li> Harjap Gill </li>
+  <li> Harjap Gill - 101 124 926 </li>
 </ul>
 
 <h2> Iteration 0 </h2>
