@@ -8,6 +8,14 @@
   <li> Harjap Gill - 101 124 926 </li>
 </ul>
 
+## How to run
+Open a terminal and run 
+
+``java -jar Scheduler.jar``
+
+## Running JUnit tests
+Open the project in eclipse -> right click the test folder -> Run As -> JUnit Test
+
 <h2> Iteration 0 </h2>
 
 <h4> Time to unload and load the elevator? </h4>
