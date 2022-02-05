@@ -9,6 +9,9 @@ public class Box {
 	private byte[] contents;
 	private boolean empty;
 	
+	/**
+	 * Constructor for Box class
+	 */
 	public Box() {
 		contents = null;
 		empty = true;

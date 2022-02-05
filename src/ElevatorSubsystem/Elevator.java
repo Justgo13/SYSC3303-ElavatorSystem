@@ -13,6 +13,13 @@ public class Elevator {
 	private boolean doorOpen;
 	private int elevatorId;
 	
+	
+	/**
+	 * Constructor to create elevator object
+	 * 
+	 * @param id of elevator to create
+	 * @param doorOpen boolean of elevator door state
+	 */
 	public Elevator(int id, boolean doorOpen) {
 		this.elevatorId = id;
 		this.doorOpen = doorOpen;

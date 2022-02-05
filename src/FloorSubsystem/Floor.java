@@ -13,6 +13,10 @@ public class Floor {
 	private boolean upButtonPressed, downButtonPressed, upButtonLamp, downButtonLamp;
 	private int floorNumber;
 	
+	/**
+	 * Constructor for floor object
+	 * 
+	 */
 	public Floor() {
 		this.upButtonPressed = false;
 		this.downButtonPressed = false;
