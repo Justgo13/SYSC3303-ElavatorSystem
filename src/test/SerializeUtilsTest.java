@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import SharedResources.FloorDataMessageSerializable;
@@ -12,6 +13,7 @@ import SharedResources.SerializeUtils;
 class SerializeUtilsTest {
 
 	@Test
+	@DisplayName("Serialize and deserialize flow")
 	void testSerializeUtils() {
 		
 		float timeStamp = 0.101f;

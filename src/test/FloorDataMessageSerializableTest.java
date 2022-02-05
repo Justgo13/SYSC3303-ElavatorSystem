@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import SharedResources.FloorDataMessageSerializable;
@@ -11,6 +12,7 @@ import SharedResources.FloorDataMessageSerializable;
 class FloorDataMessageSerializableTest {
 
 	@Test
+	@DisplayName("Serializes floor data message")
 	void testFloorDataMessageSerializable() {
 		
 		float timeStamp = 0.101f;

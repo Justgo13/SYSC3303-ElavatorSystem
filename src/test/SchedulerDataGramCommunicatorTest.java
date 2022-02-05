@@ -1,5 +1,6 @@
 package test;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import SchedulerSubsystem.SchedulerDataGramCommunicator;
@@ -20,6 +21,7 @@ import org.junit.Assert;
 class SchedulerDataGramCommunicatorTest {
 
 	@Test
+	@DisplayName("Elevator to floor shared box flow")
 	void testElevatorToFloorCommunicator() {
 		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
 		String testString = "Hello, I love testing";
@@ -32,6 +34,7 @@ class SchedulerDataGramCommunicatorTest {
 	}
 	
 	@Test
+	@DisplayName("Floor to elevator shared box flow")
 	void testFloorToElevatorCommunicator() {
 		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
 		String testString = "Hello, I love testing";

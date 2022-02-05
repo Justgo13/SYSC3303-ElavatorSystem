@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import SharedResources.Box;
@@ -9,6 +10,7 @@ import SharedResources.Box;
 class BoxTest {
 
 	@Test
+	@DisplayName("Putting into empty box works")
 	void testBox() {
 		Box box = new Box();
 		
