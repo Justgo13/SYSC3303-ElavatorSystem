@@ -18,39 +18,26 @@ import org.junit.Assert;
 class SchedulerDataGramCommunicatorTest {
 
 	@Test
-	void testElevatorToFloor() {
+	void testElevatorToFloorCommunicator() {
 		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
 		String testString = "Hello, I love testing";
 		
 		byte[] packet = testString.getBytes();
-		dsg.sendToElevator(packet);
+		dsg.elevatorToFloorPut(packet);
 		
-		byte[] returned = dsg.receiveFromFloor();
+		byte[] returned = dsg.elevatorToFloorGet();
 		Assert.assertEquals(packet, returned);
 	}
 	
 	@Test
-	void testFloorToElevator() {
+	void testFloorToElevatorCommunicator() {
 		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
 		String testString = "Hello, I love testing";
 		
 		byte[] packet = testString.getBytes();
-		dsg.sendToFloor(packet);
+		dsg.floorToElevatorPut(packet);
 		
-		byte[] returned = dsg.receiveFromElevator();
-		Assert.assertEquals(packet, returned);
-	}	
-	
-	@Test
-	void tesFloorToElevatorWait() {
-		SchedulerDataGramCommunicator dsg = new SchedulerDataGramCommunicator();
-		String testString = "Hello, I love testing";
-		
-		byte[] returned = dsg.receiveFromElevator();
-
-		byte[] packet = testString.getBytes();
-		dsg.sendToFloor(packet);
-		
+		byte[] returned = dsg.floorToElevatorGet();
 		Assert.assertEquals(packet, returned);
 	}	
 }

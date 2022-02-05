@@ -30,13 +30,13 @@ public class ElevatorSystem implements Runnable {
 	@Override
 	public void run() {
 		//assumes that only one message is sent, which is to be sent back
-		byte[] message = communicator.receiveFromFloor();
+		byte[] message = communicator.elevatorToFloorGet();
 		try {
 			System.out.println("Elevator System received message from Scheduler: \n" + SerializeUtils.deserialize(message));
 		} catch (ClassNotFoundException | IOException e) {
 			e.printStackTrace();
 		}
 		System.out.println("Sending message from Elevator System to Scheduler.");
-		communicator.sendToFloor(message);
+		communicator.floorToElevatorPut(message);
 	}
 }
