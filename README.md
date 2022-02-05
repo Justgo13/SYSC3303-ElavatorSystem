@@ -8,6 +8,11 @@
   <li> Harjap Gill - 101 124 926 </li>
 </ul>
 
+## Setup
+Open Eclipse
+
+File -> Import -> General -> Projects from Folder or Archive -> Select iteration archive -> Select nested folder <em>SYSC3303_ElevatorSystem</em> -> Finish
+
 ## How to run (production)
 Open a terminal and run 
 
