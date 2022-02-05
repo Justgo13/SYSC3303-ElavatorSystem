@@ -11,8 +11,8 @@ import SharedResources.*;
  *         A class for sending and receiving Datagram packets to and from the scheduler.
  */
 public class SchedulerDataGramCommunicator {
-	private Box floorToElevatorBox;
-	private Box elevatorToFloorBox;
+	private Box floorToElevatorBox; // a box where floor is producer and elevator is consumer
+	private Box elevatorToFloorBox; // a box where box is producer and floor is consumer
 	
 	/**
 	 * Create shared memory for each direction of communication

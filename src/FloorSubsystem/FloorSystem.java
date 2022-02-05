@@ -46,10 +46,10 @@ public class FloorSystem implements Runnable{
 		//Assume that for iteration 1, each message sent by the floor will eventually be received again
 		for(int i = 0; i < floorDataEntry.size(); i++) {
 			System.out.println("Sending message from Floor System to Scheduler.");
-			sharedCommunicator.elevatorToFloorPut(floorDataEntry.get(i));
+			sharedCommunicator.floorToElevatorPut(floorDataEntry.get(i));
 			
 			try {
-				System.out.println("Floor System received message from Scheduler: \n" + SerializeUtils.deserialize(sharedCommunicator.floorToElevatorGet()));
+				System.out.println("Floor System received message from Scheduler: \n" + SerializeUtils.deserialize(sharedCommunicator.elevatorToFloorGet()));
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
 			}
