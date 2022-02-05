@@ -1,12 +1,16 @@
-package ElevatorSubsystem;
+package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import ElevatorSubsystem.Elevator;
 
 class ElevatorTest {
 
 	@Test
+	@DisplayName("Elevator initialization")
 	void testElevator() {
 		int elevatorId = 1;
 		boolean doorOpen = false;

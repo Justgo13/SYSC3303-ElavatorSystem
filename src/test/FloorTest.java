@@ -1,11 +1,15 @@
-package FloorSubsystem;
+package test;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import FloorSubsystem.Floor;
 
 class FloorTest {
 
 	@Test
+	@DisplayName("Initialize a floor")
 	void checkFloorInitialization() {
 		Floor floor = new Floor();
 		Assert.assertEquals(false, floor.isUpButtonPressed());
@@ -16,6 +20,7 @@ class FloorTest {
 	}
 	
 	@Test
+	@DisplayName("Proper floor set methods")
 	void checkFloorSets(){
 		Floor floor = new Floor();
 		floor.setFloorNumber(5);

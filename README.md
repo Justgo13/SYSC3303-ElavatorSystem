@@ -8,6 +8,20 @@
   <li> Harjap Gill - 101 124 926 </li>
 </ul>
 
+## How to run (production)
+Open a terminal and run 
+
+``java -jar Scheduler.jar``
+
+## How to run (local)
+Open the project in eclipse -> Open SchedulerSystem.java -> Run As -> Java Application
+
+## Running JUnit tests
+Open the project in eclipse -> right click the test folder -> Run As -> JUnit Test
+
+## Documentation
+Documentation is found in doc/
+
 <h2> Iteration 0 </h2>
 
 <h4> Time to unload and load the elevator? </h4>

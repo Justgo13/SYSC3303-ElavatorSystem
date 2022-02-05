@@ -14,6 +14,14 @@ public class FloorDataMessageSerializable implements Serializable {
 	private String direction;
 	private int destinationNumber;
 
+	/**
+	 * Constructor to create FloorDataMessage
+	 * 
+	 * @param timeStamp of the message
+	 * @param floorNumber indicating the floor of the message
+	 * @param direction to set direction of the message
+	 * @param destinationNumber destination floor of the message
+	 */
 	public FloorDataMessageSerializable(float timeStamp, int floorNumber, String direction, int destinationNumber) {
 		this.timeStamp = timeStamp;
 		this.floorNumber = floorNumber;

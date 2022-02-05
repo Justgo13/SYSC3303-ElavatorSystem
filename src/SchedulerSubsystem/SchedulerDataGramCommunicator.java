@@ -22,18 +22,38 @@ public class SchedulerDataGramCommunicator {
 		elevatorToFloorBox = new Box();
 	}
 	
+	/**
+	 * Add data to the elevator to floor box
+	 * 
+	 * @param data to be added to the box
+	 */
 	public void elevatorToFloorPut(byte[] data) {
 		this.elevatorToFloorBox.put(data);
 	}
 	
+	/**
+	 * Retrieve data from the elevator to floor box
+	 *  
+	 * @return data that was stored in the box
+	 */
 	public byte[] elevatorToFloorGet() {
 		return this.elevatorToFloorBox.get();
 	}
 	
+	/**
+	 * Add data to the floor to elevator box
+	 * 
+	 * @param data to be added to the box
+	 */
 	public void floorToElevatorPut(byte[] data) {
 		this.floorToElevatorBox.put(data);
 	}
 	
+	/**
+	 * Retrieve data from the floor to elevator box
+	 *  
+	 * @return data that was stored in the box
+	 */
 	public byte[] floorToElevatorGet() {
 		return this.floorToElevatorBox.get();
 	}
