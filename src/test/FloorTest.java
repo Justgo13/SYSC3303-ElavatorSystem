@@ -1,7 +1,9 @@
-package FloorSubsystem;
+package test;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
+
+import FloorSubsystem.Floor;
 
 class FloorTest {
 

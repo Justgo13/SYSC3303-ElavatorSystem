@@ -1,10 +1,13 @@
-package SharedResources;
+package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 
 import org.junit.jupiter.api.Test;
+
+import SharedResources.FloorDataMessageSerializable;
+import SharedResources.SerializeUtils;
 
 class SerializeUtilsTest {
 

@@ -1,6 +1,8 @@
-package SchedulerSubsystem;
+package test;
 
 import org.junit.jupiter.api.Test;
+
+import SchedulerSubsystem.SchedulerDataGramCommunicator;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;

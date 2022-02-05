@@ -1,8 +1,10 @@
-package ElevatorSubsystem;
+package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
+import ElevatorSubsystem.Elevator;
 
 class ElevatorTest {
 
