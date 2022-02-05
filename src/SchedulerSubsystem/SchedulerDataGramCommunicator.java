@@ -11,8 +11,8 @@ import SharedResources.*;
  *         A class for sending and receiving Datagram packets to and from the scheduler.
  */
 public class SchedulerDataGramCommunicator {
-	private Box floorToElevatorBox;
-	private Box elevatorToFloorBox;
+	private Box floorToElevatorBox; // a box where floor is producer and elevator is consumer
+	private Box elevatorToFloorBox; // a box where box is producer and floor is consumer
 	
 	/**
 	 * Create shared memory for each direction of communication
@@ -22,19 +22,19 @@ public class SchedulerDataGramCommunicator {
 		elevatorToFloorBox = new Box();
 	}
 	
-	public void sendToElevator(byte[] data) {
+	public void elevatorToFloorPut(byte[] data) {
 		this.elevatorToFloorBox.put(data);
 	}
 	
-	public byte[] receiveFromFloor() {
+	public byte[] elevatorToFloorGet() {
 		return this.elevatorToFloorBox.get();
 	}
 	
-	public void sendToFloor(byte[] data) {
+	public void floorToElevatorPut(byte[] data) {
 		this.floorToElevatorBox.put(data);
 	}
 	
-	public byte[] receiveFromElevator() {
+	public byte[] floorToElevatorGet() {
 		return this.floorToElevatorBox.get();
 	}
 }

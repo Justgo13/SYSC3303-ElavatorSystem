@@ -23,6 +23,8 @@ public class FloorDataMessageSerializable implements Serializable {
 
 	/**
 	 * toString method to print contents of floor data message
+	 * 
+	 * @return a string depicting the contents of the message
 	 */
 	public String toString() {
 		return String.format("Floor message: \n	Time: %.2f\n	Floor: %d\n	Direction: %s\n	Car Button: %d", timeStamp, floorNumber, direction, destinationNumber);
