@@ -33,7 +33,7 @@ public class DeclineFloorRequestMessage extends Message {
 	@Override
 	public MessageTypes getMessageType() {
 		// TODO Auto-generated method stub
-		return MessageTypes.DeclineFloorRequestMessage;
+		return MessageTypes.DECLINE_FLOOR_REQUEST_MESSAGE;
 	}
 
 	/**

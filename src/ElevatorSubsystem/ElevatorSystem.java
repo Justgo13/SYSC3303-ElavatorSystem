@@ -50,7 +50,7 @@ public class ElevatorSystem implements Runnable {
 			
 			switch (message.getMessageType()) {
 			
-			case ServiceFloorRequestMessage:
+			case SERVICE_FLOOR_REQUEST_MESSAGE:
 				ServiceFloorRequestMessage serviceFloorRequestMessage = (ServiceFloorRequestMessage) message;
 				Integer elevatorId = serviceFloorRequestMessage.getElevatorId();
 				Message confirmationMessage = createConfirmationMessage(elevatorId, serviceFloorRequestMessage);

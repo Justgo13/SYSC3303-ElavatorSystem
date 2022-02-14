@@ -33,7 +33,7 @@ public class AcceptFloorRequestMessage extends Message {
 	@Override
 	public MessageTypes getMessageType() {
 		// TODO Auto-generated method stub
-		return MessageTypes.AcceptFloorRequestMessage;
+		return MessageTypes.ACCEPT_FLOOR_REQUEST_MESSAGE;
 	}
 
 	/**

@@ -7,8 +7,8 @@ package Messages;
  *
  */
 public enum MessageTypes {
-	FloorDataMessage,
-	ServiceFloorRequestMessage,
-	AcceptFloorRequestMessage,
-	DeclineFloorRequestMessage,
+	FLOOR_DATA_MESSAGE,
+	SERVICE_FLOOR_REQUEST_MESSAGE,
+	ACCEPT_FLOOR_REQUEST_MESSAGE,
+	DECLINE_FLOOR_REQUEST_MESSAGE,
 }

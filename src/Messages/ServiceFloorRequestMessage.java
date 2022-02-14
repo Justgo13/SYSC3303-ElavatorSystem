@@ -30,7 +30,7 @@ public class ServiceFloorRequestMessage extends Message {
 	
 	@Override
 	public MessageTypes getMessageType() {
-		return MessageTypes.ServiceFloorRequestMessage;
+		return MessageTypes.SERVICE_FLOOR_REQUEST_MESSAGE;
 	}
 	
 	

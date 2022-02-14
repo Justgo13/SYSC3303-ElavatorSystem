@@ -32,7 +32,7 @@ public class FloorDataMessage extends Message{
 	
 	@Override
 	public MessageTypes getMessageType() {
-		return MessageTypes.FloorDataMessage;
+		return MessageTypes.FLOOR_DATA_MESSAGE;
 	}
 
 	/**
