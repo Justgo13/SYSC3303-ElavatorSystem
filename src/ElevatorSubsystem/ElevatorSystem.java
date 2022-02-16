@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import SchedulerSubsystem.SchedulerDataGramCommunicator;
-import SharedResources.SerializeUtils;
 import SharedResources.*;
 import Messages.*;
 
@@ -17,19 +16,17 @@ import Messages.*;
  *
  */
 public class ElevatorSystem implements Runnable {
-	private Buffer getBuffer;
-	private Buffer putBuffer;
+	private ByteBufferCommunicator bufferCommunicator;
 	private ArrayList<Elevator> elevators;
 
 	/**
 	 * Constructs an ElevatorSystem.
-	 * 
+	 * @param bufferCommunicator An instance of a buffer communicator object
 	 * @param communicator a reference to the Scheduler's communicator
 	 */
-	public ElevatorSystem(Buffer getBuffer, Buffer putBuffer, ArrayList<Elevator> elevators) {
-		this.getBuffer = getBuffer;
-		this.putBuffer = putBuffer;
+	public ElevatorSystem(ByteBufferCommunicator bufferCommunicator, ArrayList<Elevator> elevators) {
 		this.elevators = elevators;
+		this.bufferCommunicator = bufferCommunicator;
 	}
 
 	/**
@@ -40,7 +37,7 @@ public class ElevatorSystem implements Runnable {
 	public void run() {
 		while (true) {
 			Message message = null;
-			byte[] bytes = getBuffer.get();
+			byte[] bytes = bufferCommunicator.getRequestBuffer();
 			try {
 				message = SerializeUtils.deserialize(bytes);
 				
@@ -63,7 +60,7 @@ public class ElevatorSystem implements Runnable {
 					e.printStackTrace();
 				}
 				
-				putBuffer.put(confirmationMessageBytes);
+				bufferCommunicator.putResponseBuffer(confirmationMessageBytes);
 				break;
 
 			default:
@@ -89,13 +86,18 @@ public class ElevatorSystem implements Runnable {
 		Message msg = null;
 		for (Elevator elevator: elevators) {
 			if (elevator.getElevatorId() == elevatorId) {
-				boolean confirm = elevator.processServiceRequest(serviceFloorRequestMessage);
-				if (confirm) {
-					msg = new AcceptFloorRequestMessage(elevator.getElevatorId(), elevator.getCurrentFloor() , elevator.getFloorBuffer());
-				} else {
-					msg = new DeclineFloorRequestMessage(elevator.getElevatorId(), elevator.getCurrentFloor() , elevator.getFloorBuffer());
-				}
-				break;
+				elevator.putFloorRequest(serviceFloorRequestMessage);
+				msg = elevator.getConfirmationMessage();
+				
+				
+				//boolean confirm = elevator.processServiceRequest(serviceFloorRequestMessage);
+				
+//				if (confirm) {
+//					msg = new AcceptFloorRequestMessage(elevator.getElevatorId(), elevator.getCurrentFloor() , elevator.getFloorBuffer());
+//				} else {
+//					msg = new DeclineFloorRequestMessage(elevator.getElevatorId(), elevator.getCurrentFloor() , elevator.getFloorBuffer());
+//				}
+//				break;
 			}
 		}
 		return msg;

@@ -3,27 +3,28 @@ package SharedResources;
 import java.util.ArrayList;
 
 /**
+ * Holds an area of shared memory to be accessed with mutual exclusion. The
+ * buffer holds byte arrays
+ * 
  * @author Harjap Gill
  * @author Jason Gao
- * 
- *         Holds an area of shared memory to be accessed with mutual exclusion.
  */
-public class Buffer {
+public class ByteBuffer {
 	private ArrayList<byte[]> queue;
 	private boolean empty;
-	
+
 	/**
-	 * Constructor for Box class
+	 * Constructor for Buffer class
 	 */
-	public Buffer() {
+	public ByteBuffer() {
 		queue = new ArrayList<byte[]>();
 		empty = true;
 	}
-	
+
 	/**
 	 * Puts an item in the buffer as long as it is empty
 	 * 
-	 * @param item the Datagram packet to store
+	 * @param item the byte array to store
 	 */
 	public synchronized void put(byte[] item) {
 		while (!empty) {
@@ -37,11 +38,11 @@ public class Buffer {
 		empty = false;
 		notifyAll();
 	}
-	
+
 	/**
-	 * Gets the item in the box and empties the box
+	 * Gets the item in the buffer and empties the buffer
 	 * 
-	 * @return the available Datagram packet and remove it
+	 * @return the byte array
 	 */
 	public synchronized byte[] get() {
 		while (empty) {
@@ -58,11 +59,11 @@ public class Buffer {
 		notifyAll();
 		return item;
 	}
-	
+
 	/**
-	 * Checks if the box has an object in it
+	 * Checks if the buffer has an object in it
 	 * 
-	 * @return True if the box is empty, false otherwise
+	 * @return True if the buffer is empty, false otherwise
 	 */
 	public synchronized boolean checkEmpty() {
 		return empty;

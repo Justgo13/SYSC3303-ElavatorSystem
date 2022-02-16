@@ -33,10 +33,12 @@ public class TemporaryElevatorTestMain {
 		elevators.add(elevator2);
 		elevators.add(elevator3);
 		
-		Buffer getBuffer = new Buffer();
-		Buffer putBuffer = new Buffer();
+		ByteBuffer getBuffer = new ByteBuffer();
+		ByteBuffer putBuffer = new ByteBuffer();
 		
-		Thread elevatorSystem = new Thread(new ElevatorSystem(getBuffer, putBuffer, elevators));
+		ByteBufferCommunicator bc = new ByteBufferCommunicator();
+		
+		Thread elevatorSystem = new Thread(new ElevatorSystem(bc, elevators));
 		elevatorSystem.start();
 		
 		
