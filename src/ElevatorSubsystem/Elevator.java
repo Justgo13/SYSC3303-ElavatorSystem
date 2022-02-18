@@ -3,13 +3,13 @@
  */
 package ElevatorSubsystem;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
 
 import Messages.*;
+import SharedResources.*;
 
 /**
  * @author Harjap Gill, Jason Gao
@@ -22,18 +22,23 @@ public class Elevator implements Runnable {
 	private final static double SPEED_M_PER_SEC = 1.42;
 	private final static double TIME_PER_FLOOR_SEC = DISTANCE_BTWN_FLOOR / SPEED_M_PER_SEC; // 2.816 s
 	private final static double TIME_PER_FLOOR_MS = TIME_PER_FLOOR_SEC * 1000; // 2816 ms
+	// Amount of time doors stay open
+	private final static double TIME_DOORS_OPEN_MS = 9.175 * 1000;
 
 	private static enum STATES {
 		IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED
 	};
 	
-	private boolean movingInterrupt;
+	private ByteBufferCommunicator schedulerBuffer;
+	private boolean interruptedWhileMoving;
+	private boolean interruptedWhileDoorsOpen;
 	private boolean doorOpen;
 	private int elevatorId;
 	private int currentFloor;
 	private String direction;
 
 	private long departureTime;
+	private long doorsOpenTime;
 
 	/**
 	 * Buffer holding the floors this elevator is planning on servicing
@@ -61,7 +66,7 @@ public class Elevator implements Runnable {
 	 * @param id       of elevator to create
 	 * @param doorOpen boolean of elevator door state
 	 */
-	public Elevator(int id, boolean doorOpen) {
+	public Elevator(int id, boolean doorOpen, ByteBufferCommunicator schedulerBuffer) {
 		this.elevatorId = id;
 		this.doorOpen = doorOpen;
 		this.floorBuffer = new ArrayList<>();
@@ -70,7 +75,8 @@ public class Elevator implements Runnable {
 		this.currentState = STATES.IDLE; // TODO might need to pass state in
 		this.direction = "";
 		this.departureTime = 0;
-		this.movingInterrupt = false;
+		this.interruptedWhileMoving = false;
+		this.interruptedWhileDoorsOpen = false;
 	}
 
 	/**
@@ -80,6 +86,7 @@ public class Elevator implements Runnable {
 	 */
 	public synchronized void putFloorRequest(Message msg) {
 		this.floorRequestBuffer.add(msg);
+		notifyAll();
 	}
 
 	/**
@@ -96,6 +103,7 @@ public class Elevator implements Runnable {
 				return null;
 			}
 		}
+		notifyAll();
 		return this.elevatorResponseBuffer.get(0);
 	}
 
@@ -106,36 +114,48 @@ public class Elevator implements Runnable {
 	 */
 	private synchronized void putConfirmationMessage(Message msg) {
 		this.elevatorResponseBuffer.add(msg);
+		notifyAll();
 	}
-
-	private synchronized Message getFloorRequest(long timeToTravel) {
+	
+	private synchronized Message getFloorRequestTimed(long timeToTravel, long departureTime) {
 		while (this.floorRequestBuffer.isEmpty()) {
 			try {
+				if (timeToTravel != 0 && System.currentTimeMillis() - departureTime >= timeToTravel) {
+					throw new TimeoutException();
+				}
 				wait(timeToTravel);
 			} catch (InterruptedException e) {
-				System.out.println(e);
+				return null;
+			} catch (TimeoutException e) {
+				// This exception is throw when wait() time has exceeded timeToTravel
+				// TODO determine if we need notifyAll()
+				// TODO see if we are breaking functionality by no longer properly handling Interruped Exception
+				notifyAll();
 				return null;
 			}
 		}
+		notifyAll();
 		return this.floorRequestBuffer.remove();
 	}
+	
+	
 
 	/**
 	 * @param floorBuffer add floor
 	 */
-	private void addFloor(int floor) {
+	private void addToFloorBufferHead(int floor) {
 		if (!this.floorBuffer.contains(floor)) {
-			this.floorBuffer.add(floor);
+			this.floorBuffer.add(0, floor);
 		}
-		
 	}
+	
 
 	/**
 	 * Remove first floor
 	 * 
 	 * @return int The first floor
 	 */
-	private int removeFirstFloor() {
+	private int removeFloorBufferHead() {
 		return this.floorBuffer.remove(0);
 	}
 
@@ -196,32 +216,6 @@ public class Elevator implements Runnable {
 	public void setCurrentFloor(int currentFloor) {
 		this.currentFloor = currentFloor;
 	}
-
-	
-	private <T> void ascendingSortInt(ArrayList<Integer> arr) {
-		Collections.sort(arr);
-	}
-	
-	private void descendingSortInt(ArrayList<Integer> arr) {
-		Collections.sort(arr, Collections.reverseOrder());
-	}
-	
-	/**
-	 * @return the movingInterrupt
-	 */
-	private boolean isMovingInterrupt() {
-		return movingInterrupt;
-	}
-
-	/**
-	 * @param movingInterrupt the movingInterrupt to set
-	 */
-	private void setMovingInterrupt(boolean movingInterrupt) {
-		this.movingInterrupt = movingInterrupt;
-	}
-
-	
-	
 	
 	@Override
 	public void run() {
@@ -229,8 +223,8 @@ public class Elevator implements Runnable {
 			// IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED
 			switch (this.currentState) {
 			case IDLE: {
-				this.setMovingInterrupt(false);
-				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequest(0); // wait time = 0 means
+				this.interruptedWhileMoving = false;
+				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequestTimed(0, 0); // wait time = 0 means
 																									// wait indefinitely
 				int srcFloor = msg.getFloorNumber();
 				int destFloor = msg.getDestinationNumber();
@@ -240,17 +234,17 @@ public class Elevator implements Runnable {
 				if (srcFloor == this.currentFloor) {
 					// open doors
 					this.currentState = STATES.DOORS_OPEN;
-					this.addFloor(destFloor);
-				} else if (srcFloor > this.currentFloor && srcFloor < destFloor) {
+					this.addToFloorBufferHead(destFloor);
+				} else if (srcFloor > this.currentFloor) {
 					// elevator idle on floor 3, request wants elevator to start at floor 5
-					this.addFloor(srcFloor);
-					this.addFloor(destFloor);
+					this.addToFloorBufferHead(destFloor);
+					this.addToFloorBufferHead(srcFloor);
 					this.direction = "up";
 					this.currentState = STATES.MOVING;
-				} else if (srcFloor < this.currentFloor && srcFloor > destFloor) {
+				} else if (srcFloor < this.currentFloor) {
 					// elevator idle on floor 3, request wants elevator to start at floor 1
-					this.addFloor(srcFloor);
-					this.addFloor(destFloor);
+					this.addToFloorBufferHead(destFloor);
+					this.addToFloorBufferHead(srcFloor);
 					this.direction = "down";
 					this.currentState = STATES.MOVING;
 				} else {
@@ -266,16 +260,30 @@ public class Elevator implements Runnable {
 			}
 
 			case MOVING: {
+				if (!this.interruptedWhileMoving) {
+					this.departureTime = System.currentTimeMillis(); 
+				}
 				
-				int nextFloor = this.floorBuffer.get(0);
-				int floorsToTravel = Math.abs(this.currentFloor - nextFloor);
-				long timeToTravel = (long) (floorsToTravel * DISTANCE_BTWN_FLOOR * Math.pow(SPEED_M_PER_SEC, -1)
-						* 1000);
+				// The floor the elevator is currently attempting to reach
+				int destFloor = this.floorBuffer.get(0);
+				
+				// Setting direction based destination floor
+				this.direction = this.currentFloor > destFloor ? "down" : "up";
+				int floorsToTravel = Math.abs(this.currentFloor - destFloor);
+				long timeToTravel = (long) (floorsToTravel * DISTANCE_BTWN_FLOOR * Math.pow(SPEED_M_PER_SEC, -1) * 1000);
 				// ie if floor to travel is 3, time = 3 * 4 m * 1/1.42 s/m = 8.45 or 8450 ms
+				
+				// 
+				if (this.interruptedWhileMoving) {
+					timeToTravel = timeToTravel - (System.currentTimeMillis() - this.departureTime);
+					
+					if (timeToTravel <= 0) {
+						// TODO handle case of negative time to travel
+						continue;
+					}
+				}
 
-				// star timer
-				this.departureTime = System.currentTimeMillis(); // time in millis when elevator starts moving
-				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequest(timeToTravel);
+				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequestTimed(timeToTravel, System.currentTimeMillis());
 
 				if (msg == null) {
 					// we reached the first floor in floorBuffer
@@ -285,9 +293,12 @@ public class Elevator implements Runnable {
 					// TODO Send arrival event to scheduler
 					break;
 				} else {
-					int srcFloor = msg.getFloorNumber();
-					int destFloor = msg.getDestinationNumber();
-					String direction = msg.getDirection();
+					// We set our state to say we have interrupted our moving state with a message
+					this.interruptedWhileMoving = true;
+					
+					int srcFloorMessage = msg.getFloorNumber();
+					int destFloorMessage = msg.getDestinationNumber();
+					String directionMessage = msg.getDirection();
 
 					// still moving
 					/**
@@ -321,50 +332,45 @@ public class Elevator implements Runnable {
 							: this.currentFloor - (int) Math.floor(floorsTravelled);
 
 					// check if request direction matches elevator direction
-					if (!this.direction.equals(direction)) {
+					if (!this.direction.equals(directionMessage)) {
 						DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
 								this.getCurrentFloor(), this.getFloorBuffer());
 						this.putConfirmationMessage(acceptMsg);
 					} else {
 						// check if we can service request, request direction same as elevator direction
-						switch (direction) {
+						switch(this.direction) {
 						case "up":
-							if (srcFloor > currFloor) {
-								// can handle request
-								this.addFloor(srcFloor);
-								this.addFloor(destFloor);
-								
-								ascendingSortInt(this.floorBuffer);
+							// if the floor request is in the same direction of travel, and both the requested floors are between
+							// our current location and our destination, service the request
+							if (srcFloorMessage > currFloor && destFloorMessage <= destFloor) {
+								this.addToFloorBufferHead(destFloorMessage);
+								this.addToFloorBufferHead(srcFloorMessage);
 								
 								AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
 										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							} else {
-								// can't handle request
-								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(
-										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+										this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							}
 							break;
+						
 						case "down":
-							if (srcFloor < currFloor) {
-								// can handle request
-								this.addFloor(srcFloor);
-								this.addFloor(destFloor);
-								
-								descendingSortInt(this.floorBuffer);
+							// if the floor request is in the same direction of travel, and both the requested floors are between
+							// our current location and our destination, service the request
+							if (srcFloorMessage < currFloor && destFloorMessage >= destFloor) {
+								this.addToFloorBufferHead(destFloorMessage);
+								this.addToFloorBufferHead(srcFloorMessage);
 								
 								AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
 										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							} else {
-								// can't handle request
-								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(
-										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+										this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							}
-							break;
-						default:
 							break;
 						}
 					}
@@ -373,15 +379,127 @@ public class Elevator implements Runnable {
 				break;
 			}
 			case STOPPED:
-
+				int floor = this.removeFloorBufferHead();
+				this.setCurrentFloor(floor);
+				ArrivalElevatorMessage arrivalMessage = new ArrivalElevatorMessage(this.getElevatorId(),
+						this.getCurrentFloor(), this.getFloorBuffer());
+				
+				try {
+					this.schedulerBuffer.putResponseBuffer(SerializeUtils.serialize(arrivalMessage));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				this.currentState = STATES.DOORS_OPEN;
 				break;
 
+				
+				
+				
+				
 			case DOORS_OPEN:
-
+				this.doorOpen = true;
+				if (!this.interruptedWhileDoorsOpen) {
+					this.doorsOpenTime = System.currentTimeMillis(); 
+				}
+				
+				long timeToWait = (long)TIME_DOORS_OPEN_MS;
+				
+				// If we were interrupted while waiting, reduce wait time by how long we have already waited
+				if (this.interruptedWhileDoorsOpen) {
+					timeToWait = timeToWait - (System.currentTimeMillis() - this.doorsOpenTime);
+					
+					if (timeToWait <= 0) {
+						// TODO handle case of negative time to wait
+						continue;
+					}
+				}
+				
+				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequestTimed(timeToWait, System.currentTimeMillis());
+				if (msg == null) {
+					this.currentState = STATES.DOORS_CLOSED;
+					break;
+				}else {
+					// We set our state to say we have interrupted our moving state with a message
+					this.interruptedWhileDoorsOpen = true;
+					
+					int srcFloorMessage = msg.getFloorNumber();
+					int destFloorMessage = msg.getDestinationNumber();
+					String directionMessage = msg.getDirection();
+					
+					// If we have no scheduled floors, then we will always accept
+					if (this.floorBuffer.isEmpty()) {
+						this.addToFloorBufferHead(destFloorMessage);
+						this.addToFloorBufferHead(srcFloorMessage);
+						
+						AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
+								this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+						this.putConfirmationMessage(acceptMsg);
+					} else {
+						int destFloor = this.floorBuffer.get(0);
+						this.direction = this.currentFloor > destFloor ? "down" : "up";
+						
+						// check if request direction matches elevator direction
+						if (!this.direction.equals(directionMessage)) {
+							DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+									this.getCurrentFloor(), this.getFloorBuffer());
+							this.putConfirmationMessage(acceptMsg);
+						} else {
+							// check if we can service request, request direction same as elevator direction
+							switch(this.direction) {
+							case "up":
+								// if the floor request is in the same direction of travel, and both the requested floors are between
+								// our current location and our destination, service the request
+								if (srcFloorMessage >= this.currentFloor && destFloorMessage <= destFloor) {
+									this.addToFloorBufferHead(destFloorMessage);
+									// Don't add srcFloor if we are already at that floor with doorsOpen
+									if (this.currentFloor != srcFloorMessage) {
+										this.addToFloorBufferHead(srcFloorMessage);
+									}
+									
+									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
+											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+									this.putConfirmationMessage(acceptMsg);
+								} else {
+									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+											this.getCurrentFloor(), this.getFloorBuffer());
+									this.putConfirmationMessage(acceptMsg);
+								}
+								break;
+							
+							case "down":
+								// if the floor request is in the same direction of travel, and both the requested floors are between
+								// our current location and our destination, service the request
+								if (srcFloorMessage <= this.currentFloor && destFloorMessage >= destFloor) {
+									this.addToFloorBufferHead(destFloorMessage);
+									// Don't add srcFloor if we are already at that floor with doorsOpen
+									if (this.currentFloor != srcFloorMessage) {
+										this.addToFloorBufferHead(srcFloorMessage);	
+									}
+									
+									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
+											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+									this.putConfirmationMessage(acceptMsg);
+								} else {
+									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+											this.getCurrentFloor(), this.getFloorBuffer());
+									this.putConfirmationMessage(acceptMsg);
+								}
+								break;
+							}
+						}
+					}	
+				}
 				break;
 
 			case DOORS_CLOSED:
-
+				this.interruptedWhileDoorsOpen = false;
+				this.interruptedWhileMoving = false;
+				
+				if (this.floorBuffer.isEmpty()) {
+					this.currentState = STATES.IDLE;
+				} else {
+					this.currentState = STATES.MOVING;
+				}
 				break;
 
 			default:

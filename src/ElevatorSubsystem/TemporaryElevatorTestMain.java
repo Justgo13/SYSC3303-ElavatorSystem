@@ -23,9 +23,15 @@ public class TemporaryElevatorTestMain {
 	}
 	
 	public static void main(String[] args) {
-		Elevator elevator1 = new Elevator(1, false);
-		Elevator elevator2 = new Elevator(2, false);
-		Elevator elevator3 = new Elevator(3, false);
+		
+		ByteBuffer getBuffer = new ByteBuffer();
+		ByteBuffer putBuffer = new ByteBuffer();
+		
+		ByteBufferCommunicator bc = new ByteBufferCommunicator();
+		
+		Elevator elevator1 = new Elevator(1, false, bc);
+		Elevator elevator2 = new Elevator(2, false, bc);
+		Elevator elevator3 = new Elevator(3, false, bc);
 
 		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
 	
@@ -33,15 +39,12 @@ public class TemporaryElevatorTestMain {
 		elevators.add(elevator2);
 		elevators.add(elevator3);
 		
-		ByteBuffer getBuffer = new ByteBuffer();
-		ByteBuffer putBuffer = new ByteBuffer();
 		
-		ByteBufferCommunicator bc = new ByteBufferCommunicator();
 		
 		Thread elevatorSystem = new Thread(new ElevatorSystem(bc, elevators));
 		elevatorSystem.start();
 		
-		
+
 		
 		// Test
 		ServiceFloorRequestMessage msg = new ServiceFloorRequestMessage(5, 10, "Up", 2);

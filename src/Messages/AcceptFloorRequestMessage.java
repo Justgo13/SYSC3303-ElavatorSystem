@@ -14,9 +14,9 @@ public class AcceptFloorRequestMessage extends Message {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	int elevatorId;
-	int elevatorCurrentFloor;
-	ArrayList<Integer> elevatorFloorBuffer;
+	private int elevatorId;
+	private int elevatorCurrentFloor;
+	private ArrayList<Integer> elevatorFloorBuffer;
 	
 	/**
 	 * @param elevatorId

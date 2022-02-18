@@ -52,15 +52,11 @@ public class ElevatorSystem implements Runnable {
 				Integer elevatorId = serviceFloorRequestMessage.getElevatorId();
 				Message confirmationMessage = createConfirmationMessage(elevatorId, serviceFloorRequestMessage);
 				
-				byte[] confirmationMessageBytes = null;
-				
 				try {
-					confirmationMessageBytes = SerializeUtils.serialize(confirmationMessage);
+					bufferCommunicator.putResponseBuffer(SerializeUtils.serialize(confirmationMessage));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
-				bufferCommunicator.putResponseBuffer(confirmationMessageBytes);
 				break;
 
 			default:
