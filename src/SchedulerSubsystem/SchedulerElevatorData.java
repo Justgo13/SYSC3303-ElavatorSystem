@@ -40,7 +40,11 @@ public class SchedulerElevatorData {
 	 * Returns string representation of elevator data
 	 */
 	public String toString() {
-		return String.format("	Current Floor: %d. Destination Floor: %d. Direction: %s", currentFloor, destinationFloor, direction);
+		String toString = String.format("	Current Floor: %d. Direction: %s.\n		Destinations:", currentFloor, direction);
+		for (Integer floor : destinationFloor) {
+			toString += " " + floor;
+		}
+		return toString;
 	}
 	
 	public int getCurrentFloor() {
