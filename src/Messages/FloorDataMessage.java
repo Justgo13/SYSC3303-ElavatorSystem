@@ -4,8 +4,6 @@ import java.io.Serializable;
 /**
  * @author Michael Quach
  * 
- *         Might want to send this serialized to a byte array potentially
- *         Note that message type needs to be specified in byte array and prefixed before this message is serialized
  */
 public class FloorDataMessage extends Message{
 	private static final long serialVersionUID = 1L;
