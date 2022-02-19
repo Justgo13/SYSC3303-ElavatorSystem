@@ -89,6 +89,11 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Elevator state machine
 
 #####  Kevin Quach
+- SchedulerSystem
+- SchedulerRequestHandler
+- Scheduler unit tests
+- Scheduler state machine (shared)
+- Pair programming with Michael Quach
 
 #####  Michael Quach
 - SchedulerSystem
@@ -96,11 +101,11 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - SchedulerElevatorData
 - FloorResponseHandler
 - FloorLightResponseMessage
-- Scheduler state machine
+- Scheduler state machine (shared)
 - Pair programming with Kevin Quach for scheduler systems
 
 #####  Shashaank Srivastava
   
 #####  Harjap Gill
-
+- Scheduler state machine (shared)
 
