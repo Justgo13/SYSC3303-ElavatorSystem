@@ -82,6 +82,18 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Elevator class
 - ReadMe
 
+## Iteration 2 Work Distribution
+##### Jason Gao
+- ByteBuffer
+- ByteBufferCommunicator
+- Elevator state machine
 
+#####  Kevin Quach
+
+#####  Michael Quach
+
+#####  Shashaank Srivastava
+  
+#####  Harjap Gill
 
 
