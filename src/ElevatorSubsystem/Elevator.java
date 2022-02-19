@@ -235,6 +235,7 @@ public class Elevator implements Runnable {
 				// wait indefinitely
 				int srcFloor = msg.getFloorNumber();
 				int destFloor = msg.getDestinationNumber();
+				int msgID = msg.getRequestID();
 
 				// check the direction the elevator should initially be
 				// going regardless of requested direction
@@ -259,7 +260,7 @@ public class Elevator implements Runnable {
 					break;
 				}
 
-				AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(this.getElevatorId(),
+				AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID, this.getElevatorId(),
 						this.getCurrentFloor(), this.getFloorBuffer());
 				this.putConfirmationMessage(acceptMsg);
 
@@ -309,6 +310,7 @@ public class Elevator implements Runnable {
 					int srcFloorMessage = msg.getFloorNumber();
 					int destFloorMessage = msg.getDestinationNumber();
 					String directionMessage = msg.getDirection();
+					int msgID = msg.getRequestID();
 
 					// still moving
 					/**
@@ -343,7 +345,7 @@ public class Elevator implements Runnable {
 
 					// check if request direction matches elevator direction
 					if (!this.direction.equals(directionMessage)) {
-						DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+						DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID, this.getElevatorId(),
 								this.getCurrentFloor(), this.getFloorBuffer());
 						this.putConfirmationMessage(acceptMsg);
 					} else {
@@ -358,11 +360,11 @@ public class Elevator implements Runnable {
 								this.addToFloorBufferHead(srcFloorMessage);
 
 								AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
-										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+										msgID, this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							} else {
 								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(
-										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+										msgID, this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							}
 							break;
@@ -376,11 +378,11 @@ public class Elevator implements Runnable {
 								this.addToFloorBufferHead(srcFloorMessage);
 
 								AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
-										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+										msgID, this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							} else {
 								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(
-										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
+										msgID, this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							}
 							break;
@@ -439,13 +441,14 @@ public class Elevator implements Runnable {
 					int srcFloorMessage = msg.getFloorNumber();
 					int destFloorMessage = msg.getDestinationNumber();
 					String directionMessage = msg.getDirection();
+					int msgID = msg.getRequestID();
 
 					// If we have no scheduled floors, then we will always accept
 					if (this.floorBuffer.isEmpty()) {
 						this.addToFloorBufferHead(destFloorMessage);
 						this.addToFloorBufferHead(srcFloorMessage);
 
-						AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(this.getElevatorId(),
+						AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID, this.getElevatorId(),
 								this.getCurrentFloor(), this.getFloorBuffer());
 						this.putConfirmationMessage(acceptMsg);
 					} else {
@@ -454,7 +457,7 @@ public class Elevator implements Runnable {
 
 						// check if request direction matches elevator direction
 						if (!this.direction.equals(directionMessage)) {
-							DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(this.getElevatorId(),
+							DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID, this.getElevatorId(),
 									this.getCurrentFloor(), this.getFloorBuffer());
 							this.putConfirmationMessage(acceptMsg);
 						} else {
@@ -471,11 +474,11 @@ public class Elevator implements Runnable {
 										this.addToFloorBufferHead(srcFloorMessage);
 									}
 
-									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
+									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID,
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
 								} else {
-									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(
+									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID, 
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
 								}
@@ -492,11 +495,11 @@ public class Elevator implements Runnable {
 										this.addToFloorBufferHead(srcFloorMessage);
 									}
 
-									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(
+									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID, 
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
 								} else {
-									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(
+									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID, 
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
 								}
