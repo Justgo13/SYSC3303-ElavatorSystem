@@ -35,6 +35,9 @@ public class ElevatorSystem implements Runnable {
 	 */
 	@Override
 	public void run() {
+		for (Elevator e: elevators) {
+			new Thread(e).start();
+		}
 		while (true) {
 			Message message = null;
 			byte[] bytes = bufferCommunicator.getRequestBuffer();

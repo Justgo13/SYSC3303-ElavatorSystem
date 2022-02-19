@@ -54,5 +54,10 @@ public class ArrivalElevatorMessage extends Message {
 	public ArrayList<Integer> getFloorBuffer() {
 		return floorBuffer;
 	}
+	
+	public String toString() {
+		return new String("ArrivalElevatorMessage for elevator: " + this.elevatorId + " for floor: " + 
+				this.currentFloor + " with floor buffer: " + this.floorBuffer);
+	}
 
 }
