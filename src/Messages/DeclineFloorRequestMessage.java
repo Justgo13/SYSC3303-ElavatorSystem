@@ -14,6 +14,7 @@ public class DeclineFloorRequestMessage extends Message {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int requestID;
 	private int elevatorId;
 	private int elevatorCurrentFloor;
 	private ArrayList<Integer> elevatorFloorBuffer;
@@ -23,8 +24,9 @@ public class DeclineFloorRequestMessage extends Message {
 	 * @param elevatorCurrentFloor
 	 * @param elevatorFloorBuffer
 	 */
-	public DeclineFloorRequestMessage(int elevatorId, int elevatorCurrentFloor, ArrayList<Integer> elevatorFloorBuffer) {
+	public DeclineFloorRequestMessage(int requestID, int elevatorId, int elevatorCurrentFloor, ArrayList<Integer> elevatorFloorBuffer) {
 		super();
+		this.requestID = requestID;
 		this.elevatorId = elevatorId;
 		this.elevatorCurrentFloor = elevatorCurrentFloor;
 		this.elevatorFloorBuffer = elevatorFloorBuffer;
@@ -34,6 +36,13 @@ public class DeclineFloorRequestMessage extends Message {
 	public MessageTypes getMessageType() {
 		// TODO Auto-generated method stub
 		return MessageTypes.DECLINE_FLOOR_REQUEST_MESSAGE;
+	}
+	
+	/**
+	 * @return the ID of the request declined
+	 */
+	public int getRequestID() {
+		return requestID;
 	}
 
 	/**

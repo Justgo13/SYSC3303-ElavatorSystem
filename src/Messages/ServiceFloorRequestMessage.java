@@ -9,6 +9,8 @@ package Messages;
  */
 public class ServiceFloorRequestMessage extends Message {
 	private static final long serialVersionUID = 1L;
+	private static int idCounter = 0;
+	private int requestID;
 	private int floorNumber;
 	private int destinationNumber;
 	private String direction;
@@ -22,6 +24,7 @@ public class ServiceFloorRequestMessage extends Message {
 	 */
 	public ServiceFloorRequestMessage(int floorNumber, int destinationNumber, String direction, int elevatorId) {
 		super();
+		this.requestID = idCounter++;
 		this.floorNumber = floorNumber;
 		this.destinationNumber = destinationNumber;
 		this.direction = direction;
@@ -33,7 +36,12 @@ public class ServiceFloorRequestMessage extends Message {
 		return MessageTypes.SERVICE_FLOOR_REQUEST_MESSAGE;
 	}
 	
-	
+	/**
+	 * @return this request's ID
+	 */
+	public int getRequestID() {
+		return requestID;
+	}
 
 	/**
 	 * @return the floorNumber

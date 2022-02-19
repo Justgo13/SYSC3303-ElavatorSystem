@@ -1,6 +1,8 @@
 package SchedulerSubsystem;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import ElevatorSubsystem.ElevatorSystem;
 import FloorSubsystem.FloorSystem;
@@ -19,12 +21,14 @@ public class SchedulerSystem {
 	private ByteBufferCommunicator floorBufferCommunicator;
 	private ArrayList<SchedulerElevatorData> elevatorData;
 	private ArrayList<FloorDataMessage> requestData;	//stores floor request messages for now, might make floor request data objects later
+	private Map<Integer, Boolean> requestResponses;
 	
 	public SchedulerSystem(ByteBufferCommunicator elevatorBufComm, ByteBufferCommunicator floorBufComm, int numElevators) {
 		this.elevatorBufferCommunicator = elevatorBufComm;
 		this.floorBufferCommunicator = floorBufComm;
 		this.elevatorData = new ArrayList<SchedulerElevatorData>();
 		this.requestData = new ArrayList<FloorDataMessage>();
+		this.requestResponses = new HashMap<>();
 		addElevators(numElevators);
 	}
 	
@@ -49,9 +53,12 @@ public class SchedulerSystem {
 			AcceptFloorRequestMessage acceptMsg = (AcceptFloorRequestMessage) updateMessage;
 			elevatorData.get(acceptMsg.getElevatorId()).setDestinationFloor(acceptMsg.getElevatorFloorBuffer());	//updates which floors the elevator will plan to visit, now that it has accepted
 			//need more information attached to accept/decline message e.g. originating floor of request, direction
+			requestResponses.put(acceptMsg.getRequestID(), true);
 			//todo need to remove request from array once accepted
 			break;
 		case DECLINE_FLOOR_REQUEST_MESSAGE:
+			DeclineFloorRequestMessage declineMsg = (DeclineFloorRequestMessage) updateMessage;
+			requestResponses.put(declineMsg.getRequestID(), false);
 			//todo need to tell request handler that request was not satisfied, no change in state
 			break;
 		case ARRIVAL_ELEVATOR_MESSAGE:
@@ -68,7 +75,7 @@ public class SchedulerSystem {
 	}
 	
 	//If there are many responses piled in the elevator response buffer, we should process all of them first before retrieving the state of the elevators
-	public synchronized ArrayList<SchedulerElevatorData> getElevatorData(){
+	public synchronized ArrayList<SchedulerElevatorData> getElevatorData() {
 		while(!elevatorBufferCommunicator.responseBufferEmpty()) {	//Need to wait until all changes to elevator states are made before retrieving
 			try {
 				wait();
@@ -80,13 +87,28 @@ public class SchedulerSystem {
 		return elevatorData;
 	}
 	
+	public synchronized boolean getRequestResponse(int requestID) {
+		while (requestResponses.get(requestID) == null) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				System.out.println("error moment");
+				return false;
+			}
+		}
+		notifyAll();
+		boolean response = requestResponses.get(requestID);
+		requestResponses.remove(requestID);
+		return response;
+	}
+	
 	//Just need to ensure we don't put at the same time we are retrieving, no need to wait for something else
 	public synchronized void putFloorRequestMessage(FloorDataMessage request) {
 		requestData.add(request);
 	}
 	
 	//If there are many requests piled in the floor request buffer, we should add all of them first to our container, then retrieve it once done
-	public synchronized ArrayList<FloorDataMessage> getFloorRequestData(){
+	public synchronized ArrayList<FloorDataMessage> getFloorRequestData() {
 		while(!floorBufferCommunicator.requestBufferEmpty()) {
 			try {
 				wait();
