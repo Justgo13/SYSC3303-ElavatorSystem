@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import SchedulerSubsystem.SchedulerDataGramCommunicator;
+import SharedResources.ByteBufferCommunicator;
 import SharedResources.SerializeUtils;
 
 /**
@@ -16,7 +17,7 @@ import SharedResources.SerializeUtils;
 public class FloorSystem implements Runnable{
 	private FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
 	private static List<byte[]> floorDataEntry = new ArrayList<byte[]>(); // list of floor entries where each entry is a byte array
-	private SchedulerDataGramCommunicator sharedCommunicator;
+	private ByteBufferCommunicator floorBufferCommunicator;
 	private Floor floor;
 
 	/**
@@ -24,8 +25,8 @@ public class FloorSystem implements Runnable{
 	 * @param floorDataFilename the filename of the data used to simulate an elevator system.
 	 * @param sharedCommunicator a reference to the Scheduler's communicator
 	 */
-	public FloorSystem(String floorDataFilename, SchedulerDataGramCommunicator sharedCommunicator) {
-		this.sharedCommunicator = sharedCommunicator;
+	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator) {
+		this.floorBufferCommunicator = floorBufferCommunicator;
 		floor = new Floor(); 
 		parser.parseFile(floorDataFilename);
 	}
@@ -46,10 +47,11 @@ public class FloorSystem implements Runnable{
 		//Assume that for iteration 1, each message sent by the floor will eventually be received again
 		for(int i = 0; i < floorDataEntry.size(); i++) {
 			System.out.println("Sending message from Floor System to Scheduler.");
-			sharedCommunicator.floorToElevatorPut(floorDataEntry.get(i));
+			
+			floorBufferCommunicator.putRequestBuffer(floorDataEntry.get(i));
 			
 			try {
-				System.out.println("Floor System received message from Scheduler: \n" + SerializeUtils.deserialize(sharedCommunicator.elevatorToFloorGet()));
+				System.out.println("Floor System received message from Scheduler: \n" + SerializeUtils.deserialize(floorBufferCommunicator.getResponseBuffer()));
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
 			}

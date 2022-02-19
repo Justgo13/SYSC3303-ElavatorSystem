@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import ElevatorSubsystem.Elevator;
 import ElevatorSubsystem.ElevatorSystem;
 import FloorSubsystem.FloorSystem;
 import Messages.*;
@@ -141,7 +142,25 @@ public class SchedulerSystem {
 		floorSystemThread.start();
 		elevatorSystemThread.start();*/
 		
-		SchedulerSystem scheduler = new SchedulerSystem(new ByteBufferCommunicator(), new ByteBufferCommunicator(), 1);
-		scheduler.printElevatorState();
+		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator();
+		Thread floorSystem = new Thread(new FloorSystem("floorData.txt", floorBufferCommunicator));
+		floorSystem.start();
+		
+		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator();
+		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 0);
+     
+     	ArrayList<Elevator> elevators = new ArrayList<Elevator>();
+     	elevators.add(elevator1);      
+      
+     	Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
+     	elevatorSystem.start();		
+		
+		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator, floorBufferCommunicator, elevators.size());
+		Thread schedulerRequestHandler = new Thread(new SchedulerRequestHandler(elevatorBufferCommunicator, floorBufferCommunicator, schedulerSystem));
+		Thread schedulerResponseHandler = new Thread(new SchedulerResponseHandler(schedulerSystem, elevatorBufferCommunicator));
+		
+		schedulerRequestHandler.start();
+		schedulerResponseHandler.start();
+		//scheduler.printElevatorState();
 	}
 }
