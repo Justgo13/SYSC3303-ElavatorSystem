@@ -91,6 +91,13 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 #####  Kevin Quach
 
 #####  Michael Quach
+- SchedulerSystem
+- SchedulerResponseHandler
+- SchedulerElevatorData
+- FloorResponseHandler
+- FloorLightResponseMessage
+- Scheduler state machine
+- Pair programming with Kevin Quach for scheduler systems
 
 #####  Shashaank Srivastava
   
