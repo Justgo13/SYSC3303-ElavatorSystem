@@ -17,7 +17,7 @@ import SchedulerSubsystem.SchedulerSystem;
 import SharedResources.ByteBufferCommunicator;
 
 /**
- * @author kquac
+ * @author Kevin Quach
  *
  */
 class SchedulerSystemTest {
