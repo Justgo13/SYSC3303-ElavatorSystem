@@ -86,7 +86,8 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 ##### Jason Gao
 - ByteBuffer
 - ByteBufferCommunicator
-- Elevator state machine
+- Elevator state machine (shared work)
+- Pair programming with Harjap Gill
 
 #####  Kevin Quach
 - SchedulerSystem
@@ -108,4 +109,5 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
   
 #####  Harjap Gill
 - Scheduler state machine (shared)
-
+- Elevator state machine (shared work)
+- Pair programming with Jason Gao
