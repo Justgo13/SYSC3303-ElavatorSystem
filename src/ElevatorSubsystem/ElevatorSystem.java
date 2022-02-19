@@ -8,11 +8,11 @@ import SharedResources.*;
 import Messages.*;
 
 /**
- * @author Michael Quach
+ * @author Michael Quach, Harjap Gill, Jason Gao
  * 
- *         For iteration 1, the elevator subsystem receives and echoes back a
- *         message from and to the scheduler subsystem. Manages the elevators in
- *         a system.
+ * Receives messages from the Scheduler. Based on the message type, determines the correct
+ * interaction with the corresponding elevator and returns any confirmation messages back to
+ * the scheduler
  *
  */
 public class ElevatorSystem implements Runnable {
@@ -30,16 +30,18 @@ public class ElevatorSystem implements Runnable {
 	}
 
 	/**
-	 * Receives a message from the scheduler (from the floor), prints it, then sends
-	 * it back to the scheduler (to the floor).
+	 * Forwards messages from the scheduler to the corresponding Elevator and enables message forwarding back
 	 */
 	@Override
 	public void run() {
+		// Start all elevator threads
 		for (Elevator e: elevators) {
 			new Thread(e).start();
 		}
 		while (true) {
 			Message message = null;
+			
+			// Waits for message to be sent by scheduler
 			byte[] bytes = bufferCommunicator.getRequestBuffer();
 			try {
 				message = SerializeUtils.deserialize(bytes);
@@ -50,53 +52,42 @@ public class ElevatorSystem implements Runnable {
 			
 			switch (message.getMessageType()) {
 			
-			case SERVICE_FLOOR_REQUEST_MESSAGE:
-				ServiceFloorRequestMessage serviceFloorRequestMessage = (ServiceFloorRequestMessage) message;
-				Integer elevatorId = serviceFloorRequestMessage.getElevatorId();
-				Message confirmationMessage = createConfirmationMessage(elevatorId, serviceFloorRequestMessage);
-				
-				try {
-					bufferCommunicator.putResponseBuffer(SerializeUtils.serialize(confirmationMessage));
-				} catch (IOException e) {
-					e.printStackTrace();
+				case SERVICE_FLOOR_REQUEST_MESSAGE:
+					// If Message is ServiceFloorRequest, send the request to the corresponding elevator and wait for its response
+					ServiceFloorRequestMessage serviceFloorRequestMessage = (ServiceFloorRequestMessage) message;
+					Integer elevatorId = serviceFloorRequestMessage.getElevatorId();
+					Message confirmationMessage = createConfirmationMessage(elevatorId, serviceFloorRequestMessage);
+					
+					try {
+						// Send the elevator's response back to the scheduler
+						bufferCommunicator.putResponseBuffer(SerializeUtils.serialize(confirmationMessage));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					break;
+	
+				default:
+					System.out.println("Elevator System does not handle messages of type: " + message.getMessageType());
+					break;
 				}
-				break;
-
-			default:
-				System.out.println("Elevator System does not handle messages of type: " + message.getMessageType());
-				break;
-			}
-			
-			
-//			byte[] message = communicator.floorToElevatorGet();
-//			try {
-//				System.out.println(
-//						"Elevator System received message from Scheduler: \n" + SerializeUtils.deserialize(message));
-//			} catch (ClassNotFoundException | IOException e) {
-//				e.printStackTrace();
-//			}
-//			System.out.println("Sending message from Elevator System to Scheduler.");
-//			communicator.elevatorToFloorPut(message);
 		}
 
 	}
-
+	
+	/**
+	 * Method for forwarding ServiceFloorRequest to the correct elevator and then waits to receive the confirmation 
+	 * message back from that elevator
+	 * 
+	 * @param elevatorId the id of the elevator who should receive the message
+	 * @param serviceFloorRequestMessage message to be sent to the elevator
+	 * @return confirmationMessage from elevator to determine if the request is accepted or declined
+	 */
 	private Message createConfirmationMessage(Integer elevatorId, ServiceFloorRequestMessage serviceFloorRequestMessage) {
 		Message msg = null;
 		for (Elevator elevator: elevators) {
 			if (elevator.getElevatorId() == elevatorId) {
 				elevator.putFloorRequest(serviceFloorRequestMessage);
 				msg = elevator.getConfirmationMessage();
-				
-				
-				//boolean confirm = elevator.processServiceRequest(serviceFloorRequestMessage);
-				
-//				if (confirm) {
-//					msg = new AcceptFloorRequestMessage(elevator.getElevatorId(), elevator.getCurrentFloor() , elevator.getFloorBuffer());
-//				} else {
-//					msg = new DeclineFloorRequestMessage(elevator.getElevatorId(), elevator.getCurrentFloor() , elevator.getFloorBuffer());
-//				}
-//				break;
 			}
 		}
 		return msg;
