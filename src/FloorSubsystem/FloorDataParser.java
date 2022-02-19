@@ -1,17 +1,13 @@
 package FloorSubsystem;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 import Messages.FloorDataMessage;
 import Messages.Message;
-import SharedResources.*;
 
 /**
  * @author Jason Gao
@@ -50,15 +46,6 @@ public class FloorDataParser {
 	
 				//FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
 				FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
-				
-//				try {
-//					// add the floor message to the floor subsystem list of byte array messages
-//					byte[] fdmsSerialized = SerializeUtils.serialize(fdms);
-//					FloorSystem.addFloorEntry(fdmsSerialized);
-//				} catch (IOException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
 				
 				FloorSystem.addFloorEntry((Message) fdms);
 			}

@@ -3,7 +3,6 @@ package ElevatorSubsystem;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import SchedulerSubsystem.SchedulerDataGramCommunicator;
 import SharedResources.*;
 import Messages.*;
 
