@@ -98,4 +98,9 @@ public class ServiceFloorRequestMessage extends Message {
 	public void setElevatorId(int elevatorId) {
 		this.elevatorId = elevatorId;
 	}
+	
+	public String toString() {
+		return "Request id: " + this.requestID + " src floor: " + this.floorNumber +
+				" destination floor: " + this.destinationNumber + " direction: " + this.direction;
+	}
 }

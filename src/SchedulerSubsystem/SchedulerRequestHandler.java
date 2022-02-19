@@ -44,7 +44,8 @@ public class SchedulerRequestHandler implements Runnable {
 			if (Math.abs(originFloor - elevator.getCurrentFloor()) < minOriginDistance) {
 				minOriginDistance = Math.abs(originFloor - elevator.getCurrentFloor());
 			}
-			if (Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) < minDestinationDistance) {
+			if (elevator.getDestinationFloor().size() != 0 &&
+					Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) < minDestinationDistance) {
 				minDestinationDistance = Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1));
 			}
 		}
@@ -76,7 +77,7 @@ public class SchedulerRequestHandler implements Runnable {
 			//can move in the opposite direction after arriving at origin, which is not ideal, but guarantees that it is serviced
 		for (SchedulerElevatorData elevator : elevators) {
 			//it should be guaranteed that there is such an elevator
-			if (Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) == minDestinationDistance) {
+			if (elevator.getDestinationFloor().size() != 0 && Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) == minDestinationDistance) {
 				String direction = (originFloor > destinationFloor) ? "down" : "up";
 				return new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator));
 			}
@@ -95,13 +96,25 @@ public class SchedulerRequestHandler implements Runnable {
 				FloorDataMessage firstRequestMessage = (FloorDataMessage) firstMessage;
 				
 				boolean acceptedRequest = false;
+				
 				while (!acceptedRequest) {
+					
 					ArrayList<SchedulerElevatorData> elevators = schedulerSystem.getElevatorData();
 					ServiceFloorRequestMessage requestMessage = makeRequest(firstRequestMessage, elevators);
 					elevatorBufferCommunicator.putRequestBuffer(SerializeUtils.serialize(requestMessage));
 					acceptedRequest = schedulerSystem.getRequestResponse(requestMessage.getRequestID()); //message ids need to be implemented
+					//System.out.printf("Request %d handled \n", requestMessage.getRequestID());
+					System.out.println(requestMessage);
+					
+					// sleep 5 seconds before retrying failed requests
+					if (!acceptedRequest) {
+						Thread.sleep(5000);
+					}
 				}
 			} catch (ClassNotFoundException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}

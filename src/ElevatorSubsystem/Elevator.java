@@ -410,7 +410,7 @@ public class Elevator implements Runnable {
 				break;
 
 			case DOORS_OPEN:
-				System.out.println("State: DoorsOpen -> " + formatter.format(new Date(System.currentTimeMillis())));
+				System.out.println("State: DoorsOpen -> " + " FloorBuffer: " + this.floorBuffer.toString() + " " + formatter.format(new Date(System.currentTimeMillis())));
 				this.doorOpen = true;
 				if (!this.interruptedWhileDoorsOpen) {
 					this.doorsOpenTime = System.currentTimeMillis();
@@ -446,7 +446,11 @@ public class Elevator implements Runnable {
 					// If we have no scheduled floors, then we will always accept
 					if (this.floorBuffer.isEmpty()) {
 						this.addToFloorBufferHead(destFloorMessage);
-						this.addToFloorBufferHead(srcFloorMessage);
+						
+						if (srcFloorMessage != this.currentFloor) {
+							this.addToFloorBufferHead(srcFloorMessage);
+						}
+						
 
 						AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID, this.getElevatorId(),
 								this.getCurrentFloor(), this.getFloorBuffer());

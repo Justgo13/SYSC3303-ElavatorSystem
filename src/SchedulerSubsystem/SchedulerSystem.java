@@ -73,6 +73,7 @@ public class SchedulerSystem {
 			System.out.println("Unexpected message type.");
 			break;		
 		}
+		notifyAll();
 	}
 	
 	//If there are many responses piled in the elevator response buffer, we should process all of them first before retrieving the state of the elevators
