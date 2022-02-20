@@ -7,7 +7,7 @@ import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import SharedResources.FloorDataMessageSerializable;
+import Messages.FloorDataMessage;
 import SharedResources.SerializeUtils;
 
 class SerializeUtilsTest {
@@ -21,12 +21,12 @@ class SerializeUtilsTest {
 		String direction = "Up";
 		int destinationNumber = 5;
 		
-		FloorDataMessageSerializable originalObject = new FloorDataMessageSerializable(timeStamp, floorNumber, direction, destinationNumber);
+		FloorDataMessage originalObject = new FloorDataMessage(timeStamp, floorNumber, direction, destinationNumber);
 		
 		try {
 			byte[] serializedObject = SerializeUtils.serialize(originalObject);
 			
-			FloorDataMessageSerializable newObject = SerializeUtils.deserialize(serializedObject);
+			FloorDataMessage newObject = SerializeUtils.deserialize(serializedObject);
 			
 			assertEquals(originalObject.getTimeStamp(), newObject.getTimeStamp());
 			assertEquals(originalObject.getFloorNumber(), newObject.getFloorNumber());
