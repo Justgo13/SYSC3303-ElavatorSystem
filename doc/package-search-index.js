@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"ElevatorSubsystem"},{"l":"FloorSubsystem"},{"l":"SchedulerSubsystem"},{"l":"SharedResources"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"ElevatorSubsystem"},{"l":"FloorSubsystem"},{"l":"Messages"},{"l":"SchedulerSubsystem"},{"l":"SharedResources"},{"l":"test"}]

@@ -24,7 +24,7 @@ public class FloorSystem implements Runnable{
 	/**
 	 * Constructs a FloorSystem.
 	 * @param floorDataFilename the filename of the data used to simulate an elevator system.
-	 * @param sharedCommunicator a reference to the Scheduler's communicator
+	 * @param floorBufferCommunicator a reference to the Scheduler's communicator
 	 */
 	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator) {
 		this.floorBufferCommunicator = floorBufferCommunicator;

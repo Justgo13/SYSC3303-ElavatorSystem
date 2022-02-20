@@ -21,7 +21,7 @@ public class ElevatorSystem implements Runnable {
 	/**
 	 * Constructs an ElevatorSystem.
 	 * @param bufferCommunicator An instance of a buffer communicator object
-	 * @param communicator a reference to the Scheduler's communicator
+	 * @param elevators a reference to the elevators for this system
 	 */
 	public ElevatorSystem(ByteBufferCommunicator bufferCommunicator, ArrayList<Elevator> elevators) {
 		this.elevators = elevators;
