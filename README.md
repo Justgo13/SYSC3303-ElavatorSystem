@@ -26,6 +26,7 @@ Open the project in eclipse -> right click the test folder -> Run As -> JUnit Te
 
 ## Documentation
 Documentation is found in doc/
+UML and state machine is in doc/uml_docs
 
 ## Iteration 0
 
