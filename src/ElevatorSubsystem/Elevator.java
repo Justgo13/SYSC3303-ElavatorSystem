@@ -166,7 +166,7 @@ public class Elevator implements Runnable {
 	/**
 	 * Add floor to front of floor buffer
 	 * 
-	 * @param floorBuffer add floor
+	 * @param floor add floor
 	 */
 	private void addToFloorBufferHead(int floor) {
 		if (!this.floorBuffer.contains(floor)) {

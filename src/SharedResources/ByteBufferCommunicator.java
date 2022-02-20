@@ -25,7 +25,7 @@ public class ByteBufferCommunicator {
 	}
 
 	/**
-	 * @param requestBuffer the requestBuffer to set
+	 * @param request the requestBuffer to set
 	 */
 	public void putRequestBuffer(byte[] request) {
 		this.requestBuffer.put(request);
@@ -39,7 +39,7 @@ public class ByteBufferCommunicator {
 	}
 
 	/**
-	 * @param responseBuffer the responseBuffer to set
+	 * @param response the responseBuffer to set
 	 */
 	public void putResponseBuffer(byte[] response) {
 		this.responseBuffer.put(response);;

@@ -21,7 +21,7 @@ public class FloorLightResponseMessage extends Message {
 	/**
 	 * Constructs response message to light up corresponding floor lights
 	 * 
-	 * @param elevatorId - elevator that has arrived
+	 * @param elevatorID - elevator that has arrived
 	 * @param currentFloor - floor where elevator has arrived
 	 * @param direction - next direction of elevator
 	 */

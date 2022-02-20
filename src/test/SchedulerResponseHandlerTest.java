@@ -19,7 +19,7 @@ import SharedResources.DirectionEnum;
 import SharedResources.SerializeUtils;
 
 /**
- * @author Kevin Quach
+ * @author Kevin Quach and Shashaank Srivastava
  *
  */
 class SchedulerResponseHandlerTest {
