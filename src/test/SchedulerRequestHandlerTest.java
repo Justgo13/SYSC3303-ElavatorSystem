@@ -20,7 +20,7 @@ import SharedResources.ByteBufferCommunicator;
 import SharedResources.DirectionEnum;
 
 /**
- * @author Kevin Quach
+ * @author Kevin Quach and Shashaank Srivastava
  *
  */
 class SchedulerRequestHandlerTest {
