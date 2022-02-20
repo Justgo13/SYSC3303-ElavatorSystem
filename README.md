@@ -106,6 +106,11 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Pair programming with Kevin Quach for scheduler systems
 
 #####  Shashaank Srivastava
+- Elevator state machine integration
+- Unit tests
+- UML diagrams
+- State diagram
+- Pair programming with Harjap Gill
   
 #####  Harjap Gill
 - Scheduler state machine (shared)
