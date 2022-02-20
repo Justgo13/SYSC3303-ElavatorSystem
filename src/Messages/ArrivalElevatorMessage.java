@@ -6,20 +6,21 @@ package Messages;
 import java.util.ArrayList;
 
 /**
+ * The message created when an elevator arrives at the destination floor
+ * 
  * @author Harjap Gill
  *
  */
 public class ArrivalElevatorMessage extends Message {
 	private static final long serialVersionUID = 1L;
-	
 	private int elevatorId;
 	private int currentFloor;
 	private ArrayList<Integer> floorBuffer;
 
 	/**
-	 * @param elevatorId
-	 * @param currentFloor
-	 * @param floorBuffer
+	 * @param elevatorId A unique elevator ID
+	 * @param currentFloor The current floor the elevator is on
+	 * @param floorBuffer The buffer holding floors the elevator will visit
 	 */
 	public ArrivalElevatorMessage(int elevatorId, int currentFloor, ArrayList<Integer> floorBuffer) {
 		super();

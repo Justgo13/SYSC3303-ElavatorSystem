@@ -6,13 +6,12 @@ package Messages;
 import java.util.ArrayList;
 
 /**
+ * The message that the elevator sends when it declines to service a floor request
+ * 
  * @author Harjap Gill
  *
  */
 public class DeclineFloorRequestMessage extends Message {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private int requestID;
 	private int elevatorId;
@@ -20,9 +19,9 @@ public class DeclineFloorRequestMessage extends Message {
 	private ArrayList<Integer> elevatorFloorBuffer;
 	
 	/**
-	 * @param elevatorId
-	 * @param elevatorCurrentFloor
-	 * @param elevatorFloorBuffer
+	 * @param elevatorId A unique elevator ID
+	 * @param elevatorCurrentFloor The current floor the elevator is on
+	 * @param elevatorFloorBuffer The buffer holding floors the elevator will visit
 	 */
 	public DeclineFloorRequestMessage(int requestID, int elevatorId, int elevatorCurrentFloor, ArrayList<Integer> elevatorFloorBuffer) {
 		super();

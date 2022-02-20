@@ -6,13 +6,12 @@ package Messages;
 import java.util.ArrayList;
 
 /**
+ * The message passed when the elevator accepts a floor request
+ * 
  * @author Harjap Gill
  *
  */
 public class AcceptFloorRequestMessage extends Message {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private int requestID;
 	private int elevatorId;
@@ -20,9 +19,9 @@ public class AcceptFloorRequestMessage extends Message {
 	private ArrayList<Integer> elevatorFloorBuffer;
 	
 	/**
-	 * @param elevatorId
-	 * @param elevatorCurrentFloor
-	 * @param elevatorFloorBuffer
+	 * @param elevatorId A unique elevator ID
+	 * @param elevatorCurrentFloor The current floor the elevator is on
+	 * @param elevatorFloorBuffer The buffer holding floors the elevator will visit
 	 */
 	public AcceptFloorRequestMessage(int requestID, int elevatorId, int elevatorCurrentFloor, ArrayList<Integer> elevatorFloorBuffer) {
 		super();
