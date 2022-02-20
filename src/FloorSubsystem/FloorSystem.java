@@ -3,7 +3,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import Messages.FloorDataMessage;
+import Messages.Message;
 import SchedulerSubsystem.SchedulerDataGramCommunicator;
+import SharedResources.ByteBufferCommunicator;
 import SharedResources.SerializeUtils;
 
 /**
@@ -15,8 +18,8 @@ import SharedResources.SerializeUtils;
  */
 public class FloorSystem implements Runnable{
 	private FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
-	private static List<byte[]> floorDataEntry = new ArrayList<byte[]>(); // list of floor entries where each entry is a byte array
-	private SchedulerDataGramCommunicator sharedCommunicator;
+	private static List<Message> floorDataEntry = new ArrayList<Message>(); // list of floor entries where each entry is a byte array
+	private ByteBufferCommunicator floorBufferCommunicator;
 	private Floor floor;
 
 	/**
@@ -24,18 +27,18 @@ public class FloorSystem implements Runnable{
 	 * @param floorDataFilename the filename of the data used to simulate an elevator system.
 	 * @param sharedCommunicator a reference to the Scheduler's communicator
 	 */
-	public FloorSystem(String floorDataFilename, SchedulerDataGramCommunicator sharedCommunicator) {
-		this.sharedCommunicator = sharedCommunicator;
+	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator) {
+		this.floorBufferCommunicator = floorBufferCommunicator;
 		floor = new Floor(); 
 		parser.parseFile(floorDataFilename);
 	}
 	
 	/**
 	 * Method for adding to the floor data entry list
-	 * @param floorData The floor message as bytes
+	 * @param fdms The floor message as bytes
 	 */
-	public static void addFloorEntry(byte[] floorData) {
-		floorDataEntry.add(floorData);
+	public static void addFloorEntry(Message fdms) {
+		floorDataEntry.add(fdms);
 	}
 
 	/**
@@ -44,15 +47,32 @@ public class FloorSystem implements Runnable{
 	@Override
 	public void run() {
 		//Assume that for iteration 1, each message sent by the floor will eventually be received again
+		float timeZero = 0;
 		for(int i = 0; i < floorDataEntry.size(); i++) {
 			System.out.println("Sending message from Floor System to Scheduler.");
-			sharedCommunicator.floorToElevatorPut(floorDataEntry.get(i));
+			if (i == 0) {
+				FloorDataMessage msg = (FloorDataMessage) floorDataEntry.get(i);
+				timeZero = msg.getTimeStamp();
+			}
+			
+			
+			// current message time
+			FloorDataMessage currentMsg = (FloorDataMessage) floorDataEntry.get(i);
+			float currentTime = currentMsg.getTimeStamp();
 			
 			try {
-				System.out.println("Floor System received message from Scheduler: \n" + SerializeUtils.deserialize(sharedCommunicator.elevatorToFloorGet()));
-			} catch (ClassNotFoundException | IOException e) {
+				Thread.sleep((long) (currentTime - timeZero));
+				floorBufferCommunicator.putRequestBuffer(SerializeUtils.serialize(currentMsg));
+			} catch (IOException | InterruptedException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+//			
+//			try {
+//				System.out.println("Floor System received message from Scheduler: \n" + SerializeUtils.deserialize(floorBufferCommunicator.getResponseBuffer()));
+//			} catch (ClassNotFoundException | IOException e) {
+//				e.printStackTrace();
+//			}
 		}		
 	}
 }

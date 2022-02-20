@@ -1,48 +1,95 @@
 package ElevatorSubsystem;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import SchedulerSubsystem.SchedulerDataGramCommunicator;
-import SharedResources.SerializeUtils;
+import SharedResources.*;
+import Messages.*;
 
 /**
- * @author Michael Quach
+ * @author Michael Quach, Harjap Gill, Jason Gao
  * 
- *         For iteration 1, the elevator subsystem receives and echoes back a
- *         message from and to the scheduler subsystem. Manages the elevators in
- *         a system.
+ * Receives messages from the Scheduler. Based on the message type, determines the correct
+ * interaction with the corresponding elevator and returns any confirmation messages back to
+ * the scheduler
  *
  */
 public class ElevatorSystem implements Runnable {
-	private SchedulerDataGramCommunicator communicator;
-	private Elevator elevator = new Elevator(1, false);
+	private ByteBufferCommunicator bufferCommunicator;
+	private ArrayList<Elevator> elevators;
 
 	/**
 	 * Constructs an ElevatorSystem.
-	 * 
+	 * @param bufferCommunicator An instance of a buffer communicator object
 	 * @param communicator a reference to the Scheduler's communicator
 	 */
-	public ElevatorSystem(SchedulerDataGramCommunicator communicator) {
-		this.communicator = communicator;
+	public ElevatorSystem(ByteBufferCommunicator bufferCommunicator, ArrayList<Elevator> elevators) {
+		this.elevators = elevators;
+		this.bufferCommunicator = bufferCommunicator;
 	}
 
 	/**
-	 * Receives a message from the scheduler (from the floor), prints it, then sends
-	 * it back to the scheduler (to the floor).
+	 * Forwards messages from the scheduler to the corresponding Elevator and enables message forwarding back
 	 */
 	@Override
 	public void run() {
+		// Start all elevator threads
+		for (Elevator e: elevators) {
+			new Thread(e).start();
+		}
 		while (true) {
-			byte[] message = communicator.floorToElevatorGet();
+			Message message = null;
+			
+			// Waits for message to be sent by scheduler
+			byte[] bytes = bufferCommunicator.getRequestBuffer();
 			try {
-				System.out.println(
-						"Elevator System received message from Scheduler: \n" + SerializeUtils.deserialize(message));
+				message = SerializeUtils.deserialize(bytes);
+				
 			} catch (ClassNotFoundException | IOException e) {
 				e.printStackTrace();
 			}
-			System.out.println("Sending message from Elevator System to Scheduler.");
-			communicator.elevatorToFloorPut(message);
+			
+			switch (message.getMessageType()) {
+			
+				case SERVICE_FLOOR_REQUEST_MESSAGE:
+					// If Message is ServiceFloorRequest, send the request to the corresponding elevator and wait for its response
+					ServiceFloorRequestMessage serviceFloorRequestMessage = (ServiceFloorRequestMessage) message;
+					Integer elevatorId = serviceFloorRequestMessage.getElevatorId();
+					Message confirmationMessage = createConfirmationMessage(elevatorId, serviceFloorRequestMessage);
+					
+					try {
+						// Send the elevator's response back to the scheduler
+						bufferCommunicator.putResponseBuffer(SerializeUtils.serialize(confirmationMessage));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					break;
+	
+				default:
+					System.out.println("Elevator System does not handle messages of type: " + message.getMessageType());
+					break;
+				}
 		}
 
+	}
+	
+	/**
+	 * Method for forwarding ServiceFloorRequest to the correct elevator and then waits to receive the confirmation 
+	 * message back from that elevator
+	 * 
+	 * @param elevatorId the id of the elevator who should receive the message
+	 * @param serviceFloorRequestMessage message to be sent to the elevator
+	 * @return confirmationMessage from elevator to determine if the request is accepted or declined
+	 */
+	private Message createConfirmationMessage(Integer elevatorId, ServiceFloorRequestMessage serviceFloorRequestMessage) {
+		Message msg = null;
+		for (Elevator elevator: elevators) {
+			if (elevator.getElevatorId() == elevatorId) {
+				elevator.putFloorRequest(serviceFloorRequestMessage);
+				msg = elevator.getConfirmationMessage();
+			}
+		}
+		return msg;
 	}
 }

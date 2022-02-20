@@ -1,14 +1,11 @@
-package SharedResources;
+package Messages;
 import java.io.Serializable;
 
 /**
  * @author Michael Quach
  * 
- *         Might want to send this serialized to a byte array potentially
- *         Note that message type needs to be specified in byte array and prefixed before this message is serialized
- *         DEPRECATED
  */
-public class FloorDataMessageSerializable implements Serializable {
+public class FloorDataMessage extends Message{
 	private static final long serialVersionUID = 1L;
 	private float timeStamp;
 	private int floorNumber;
@@ -23,11 +20,17 @@ public class FloorDataMessageSerializable implements Serializable {
 	 * @param direction to set direction of the message
 	 * @param destinationNumber destination floor of the message
 	 */
-	public FloorDataMessageSerializable(float timeStamp, int floorNumber, String direction, int destinationNumber) {
+	public FloorDataMessage(float timeStamp, int floorNumber, String direction, int destinationNumber) {
+		super();
 		this.timeStamp = timeStamp;
 		this.floorNumber = floorNumber;
 		this.direction = direction;
 		this.destinationNumber = destinationNumber;
+	}
+	
+	@Override
+	public MessageTypes getMessageType() {
+		return MessageTypes.FLOOR_DATA_MESSAGE;
 	}
 
 	/**

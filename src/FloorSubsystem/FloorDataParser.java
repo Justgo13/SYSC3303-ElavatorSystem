@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import Messages.FloorDataMessage;
+import Messages.Message;
 import SharedResources.*;
 
 /**
@@ -45,17 +47,20 @@ public class FloorDataParser {
 
 				// get destination floor
 				int destinationFloor = Integer.parseInt(lineAsArrayList.get(3));
+	
+				//FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
+				FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
 				
-				FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
+//				try {
+//					// add the floor message to the floor subsystem list of byte array messages
+//					byte[] fdmsSerialized = SerializeUtils.serialize(fdms);
+//					FloorSystem.addFloorEntry(fdmsSerialized);
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
 				
-				try {
-					// add the floor message to the floor subsystem list of byte array messages
-					byte[] fdmsSerialized = SerializeUtils.serialize(fdms);
-					FloorSystem.addFloorEntry(fdmsSerialized);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				FloorSystem.addFloorEntry((Message) fdms);
 			}
 			fileReader.close();
 		} catch (FileNotFoundException e) {
