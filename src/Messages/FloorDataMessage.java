@@ -1,7 +1,8 @@
 package Messages;
-import java.io.Serializable;
 
 /**
+ * The message created when sending a floor request
+ * 
  * @author Michael Quach
  * 
  */

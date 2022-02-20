@@ -27,13 +27,6 @@ public class ByteBuffer {
 	 * @param item the byte array to store
 	 */
 	public synchronized void put(byte[] item) {
-//		while (!empty) {
-//			try {
-//				wait();
-//			} catch (InterruptedException e) {
-//				return;
-//			}
-//		}
 		queue.add(item);
 		empty = false;
 		notifyAll();
@@ -52,7 +45,6 @@ public class ByteBuffer {
 				return null;
 			}
 		}
-		//byte[] item = queue.get(0);
 		byte[] item = queue.remove(0);
 		if (queue.isEmpty()) {
 			empty = true;

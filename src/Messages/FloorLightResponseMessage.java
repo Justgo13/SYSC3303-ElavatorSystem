@@ -6,6 +6,8 @@ package Messages;
 import SharedResources.DirectionEnum;
 
 /**
+ * The message created to turn on floor lights
+ * 
  * @author Michael Quach
  *
  */
