@@ -34,7 +34,7 @@ public class SchedulerRequestHandler implements Runnable {
 		
 		//if there's an idle elevator at the requesting floor, use it, otherwise, check all the elevators
 		for (SchedulerElevatorData elevator : elevators) {
-			if (elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && elevator.getCurrentFloor() == originFloor) {
+			if (elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && elevator.getCurrentFloor() == originFloor) { //todo: check if they also have any destinations
 				String direction = (originFloor > destinationFloor) ? "down" : "up";
 				return new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator));
 			}
