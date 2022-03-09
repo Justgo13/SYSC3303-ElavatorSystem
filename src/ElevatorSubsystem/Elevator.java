@@ -427,7 +427,7 @@ public class Elevator implements Runnable {
 						this.getCurrentFloor(), this.getFloorBuffer());
 
 				try {
-					this.schedulerBuffer.putResponseBuffer(SerializeUtils.serialize(arrivalMessage));
+					this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(arrivalMessage));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

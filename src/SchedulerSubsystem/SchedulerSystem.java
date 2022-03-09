@@ -95,7 +95,7 @@ public class SchedulerSystem {
 	 * @return arraylist of elevator states.
 	 */
 	public synchronized ArrayList<SchedulerElevatorData> getElevatorData() {
-		while(!elevatorBufferCommunicator.responseBufferEmpty()) {	//Need to wait until all changes to elevator states are made before retrieving
+		while(!elevatorBufferCommunicator.isMessageListEmpty()) {	//Need to wait until all changes to elevator states are made before retrieving
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -143,28 +143,57 @@ public class SchedulerSystem {
 	 * 
 	 * @param args A list of string args
 	 */
-	public static void main(String[] args) {		
-		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator();
+	public static void main(String[] args) {
+		// floor
+		int sendPort = 23;
+		int receivePort = 24;
+		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator);
 		Thread floorSystemThread = new Thread(floorSystem);	//TODO maybe make this thread be spawned by floor system itself
 		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
+		floorBufferCommunicator.start();
+		
+
 		floorSystemThread.start();
 		floorResponseHandler.start();
 		
-		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator();
+		
+		// elevator
+		sendPort = 69;
+		receivePort =  70;
+		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
-     
+		elevatorBufferCommunicator.start();
+	     
      	ArrayList<Elevator> elevators = new ArrayList<Elevator>();
      	elevators.add(elevator1);      
       
      	Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
      	elevatorSystem.start();		
+     	
+     	//  scheduler <-> floor (thread 1)
+		sendPort = 24;
+		receivePort = 23;
+		ByteBufferCommunicator floorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
 		
-		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator, floorBufferCommunicator, elevators.size());
-		Thread schedulerRequestHandler = new Thread(new SchedulerRequestHandler(elevatorBufferCommunicator, floorBufferCommunicator, schedulerSystem));
-		Thread schedulerResponseHandler = new Thread(new SchedulerResponseHandler(elevatorBufferCommunicator, floorBufferCommunicator, schedulerSystem));
+		// scheduler <-> elevator (thread 2)
+		sendPort = 70;
+		receivePort = 69;
+		ByteBufferCommunicator elevatorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
+		
+		
+		
+		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2, elevators.size());
+		Thread schedulerRequestHandler = new Thread(new SchedulerRequestHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
+		Thread schedulerResponseHandler = new Thread(new SchedulerResponseHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
 		
 		schedulerRequestHandler.start();
 		schedulerResponseHandler.start();
+		
+		
+		
+		floorBufferCommunicator2.start();
+		elevatorBufferCommunicator2.start();
+		
 	}
 }

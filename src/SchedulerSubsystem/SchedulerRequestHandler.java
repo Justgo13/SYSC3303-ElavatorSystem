@@ -89,7 +89,7 @@ public class SchedulerRequestHandler implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			byte[] firstRequest = floorBufferCommunicator.getRequestBuffer();
+			byte[] firstRequest = floorBufferCommunicator.getUDPMessage();
 			
 			try {
 				Message firstMessage = SerializeUtils.deserialize(firstRequest);
@@ -101,7 +101,7 @@ public class SchedulerRequestHandler implements Runnable {
 					
 					ArrayList<SchedulerElevatorData> elevators = schedulerSystem.getElevatorData();
 					ServiceFloorRequestMessage requestMessage = makeRequest(firstRequestMessage, elevators);
-					elevatorBufferCommunicator.putRequestBuffer(SerializeUtils.serialize(requestMessage));
+					elevatorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(requestMessage));
 					acceptedRequest = schedulerSystem.getRequestResponse(requestMessage.getRequestID()); //message ids need to be implemented
 					//System.out.printf("Request %d handled \n", requestMessage.getRequestID());
 					System.out.println(requestMessage);

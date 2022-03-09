@@ -3,61 +3,118 @@
  */
 package SharedResources;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A shared class for storing and retrieving information from message buffers
  * 
  * @author Jason Gao
  */
-public class ByteBufferCommunicator {
-	private ByteBuffer requestBuffer;
-	private ByteBuffer responseBuffer;
-	
-	public ByteBufferCommunicator() {
-		this.requestBuffer = new ByteBuffer();
-		this.responseBuffer = new ByteBuffer();
+public class ByteBufferCommunicator extends Thread {
+	private int sendPort;
+	private int receivePort;
+
+	private DatagramSocket receiveSocket;
+	private List<byte[]> receivedMessages;
+
+	public ByteBufferCommunicator(int sendPort, int receivePort) {
+		try {
+			this.sendPort = sendPort;
+			this.receivePort = receivePort;
+			this.receiveSocket = new DatagramSocket(this.receivePort);
+			this.receivedMessages = new ArrayList<>();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
-	 * @return the requestBuffer
+	 * Send a UDP message 
+	 * @param msg The message to send
 	 */
-	public byte[] getRequestBuffer() {
-		return this.requestBuffer.get();
-	}
+	public void sendUDPMessage(byte[] msg) {
+		try {
+			DatagramPacket sendPacket = new DatagramPacket(msg, msg.length, InetAddress.getLocalHost(), this.sendPort);
+			DatagramSocket socket = new DatagramSocket();
 
-	/**
-	 * @param request the requestBuffer to set
-	 */
-	public void putRequestBuffer(byte[] request) {
-		this.requestBuffer.put(request);
-	}
+			socket.send(sendPacket);
 
-	/**
-	 * @return the responseBuffer
-	 */
-	public byte[] getResponseBuffer() {
-		return this.responseBuffer.get();
-	}
-
-	/**
-	 * @param response the responseBuffer to set
-	 */
-	public void putResponseBuffer(byte[] response) {
-		this.responseBuffer.put(response);;
-	}
-	
-	/**
-	 * Check if request buffer is empty
-	 * @return True if empty, false otherwise
-	 */
-	public boolean requestBufferEmpty() {
-		return this.requestBuffer.checkEmpty();
+			socket.close();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (SocketException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/**
-	 * Check if response buffer is empty
-	 * @return True if empty, false otherwise
+	 * @return A byte array with the UDP message
 	 */
-	public boolean responseBufferEmpty() {
-		return this.responseBuffer.checkEmpty();
+	public synchronized byte[] getUDPMessage() {
+		while (this.receivedMessages.size() == 0) {
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		notifyAll();
+		return this.receivedMessages.remove(0);
+	}
+	
+	/**
+	 * 
+	 * @return Boolean to indicate if received message list is empty
+	 */
+	public synchronized boolean isMessageListEmpty() {
+		notifyAll();
+		return this.receivedMessages.isEmpty();
+	}
+	
+	/**
+	 * Add a UDP message to the received message list
+	 * @param message
+	 */
+	private synchronized void addUDPMessage(byte[] message) {
+		this.receivedMessages.add(message);
+		notifyAll();
+	}
+
+	/**
+	 * Receive a UDP packet
+	 */
+	private void receiveUDPMessage() {
+		
+		byte[] receiveBytes = new byte[512];
+		DatagramPacket receivePacket = new DatagramPacket(receiveBytes, receiveBytes.length);
+
+		try {
+			this.receiveSocket.receive(receivePacket);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.addUDPMessage(receiveBytes);
+		
+		
+	}
+
+	@Override
+	public void run() {
+		while(true) {
+			this.receiveUDPMessage();
+		}
+
 	}
 }

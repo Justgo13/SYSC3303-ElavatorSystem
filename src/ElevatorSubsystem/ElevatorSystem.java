@@ -41,7 +41,7 @@ public class ElevatorSystem implements Runnable {
 			Message message = null;
 			
 			// Waits for message to be sent by scheduler
-			byte[] bytes = bufferCommunicator.getRequestBuffer();
+			byte[] bytes = bufferCommunicator.getUDPMessage();
 			try {
 				message = SerializeUtils.deserialize(bytes);
 				
@@ -59,7 +59,7 @@ public class ElevatorSystem implements Runnable {
 					
 					try {
 						// Send the elevator's response back to the scheduler
-						bufferCommunicator.putResponseBuffer(SerializeUtils.serialize(confirmationMessage));
+						bufferCommunicator.sendUDPMessage(SerializeUtils.serialize(confirmationMessage));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

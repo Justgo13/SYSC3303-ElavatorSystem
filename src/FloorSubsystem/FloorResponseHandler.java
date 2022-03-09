@@ -29,7 +29,7 @@ public class FloorResponseHandler implements Runnable {
 
 	public void run() {
 		while(true) {
-			byte[] response = floorBufferCommunicator.getResponseBuffer();
+			byte[] response = floorBufferCommunicator.getUDPMessage();
 			try {
 				FloorLightResponseMessage message = (FloorLightResponseMessage) SerializeUtils.deserialize(response);
 				System.out.println(message);
