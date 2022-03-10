@@ -4,6 +4,7 @@
 package SharedResources;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -17,7 +18,7 @@ import java.util.List;
  * 
  * @author Jason Gao
  */
-public class ByteBufferCommunicator extends Thread {
+public class ByteBufferCommunicator implements Runnable {
 	private int sendPort;
 	private int receivePort;
 
@@ -31,12 +32,14 @@ public class ByteBufferCommunicator extends Thread {
 			this.receiveSocket = new DatagramSocket(this.receivePort);
 			this.receivedMessages = new ArrayList<>();
 		} catch (SocketException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	/**
-	 * Send a UDP message 
+	 * Send a UDP message
+	 * 
 	 * @param msg The message to send
 	 */
 	public void sendUDPMessage(byte[] msg) {
@@ -54,9 +57,9 @@ public class ByteBufferCommunicator extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
+
 	/**
 	 * @return A byte array with the UDP message
 	 */
@@ -72,7 +75,7 @@ public class ByteBufferCommunicator extends Thread {
 		notifyAll();
 		return this.receivedMessages.remove(0);
 	}
-	
+
 	/**
 	 * 
 	 * @return Boolean to indicate if received message list is empty
@@ -81,9 +84,10 @@ public class ByteBufferCommunicator extends Thread {
 		notifyAll();
 		return this.receivedMessages.isEmpty();
 	}
-	
+
 	/**
 	 * Add a UDP message to the received message list
+	 * 
 	 * @param message
 	 */
 	private synchronized void addUDPMessage(byte[] message) {
@@ -95,25 +99,37 @@ public class ByteBufferCommunicator extends Thread {
 	 * Receive a UDP packet
 	 */
 	private void receiveUDPMessage() {
-		
+
 		byte[] receiveBytes = new byte[512];
 		DatagramPacket receivePacket = new DatagramPacket(receiveBytes, receiveBytes.length);
 
 		try {
 			this.receiveSocket.receive(receivePacket);
+		} catch (BindException e) {
+			// TODO: handle exception
+		} catch (SocketException e) {
+			// TODO: handle exception
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.addUDPMessage(receiveBytes);
-		
-		
+
+	}
+
+	public void closeSocket() {
+		this.receiveSocket.close();
 	}
 
 	@Override
 	public void run() {
-		while(true) {
+		while (true) {
+
+			if (Thread.currentThread().isInterrupted()) {
+				break;
+			}
 			this.receiveUDPMessage();
+
 		}
 
 	}

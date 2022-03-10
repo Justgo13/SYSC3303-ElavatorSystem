@@ -151,7 +151,7 @@ public class SchedulerSystem {
 		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator);
 		Thread floorSystemThread = new Thread(floorSystem);	//TODO maybe make this thread be spawned by floor system itself
 		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
-		floorBufferCommunicator.start();
+		new Thread(floorBufferCommunicator).start();
 		
 
 		floorSystemThread.start();
@@ -163,7 +163,7 @@ public class SchedulerSystem {
 		receivePort =  70;
 		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
-		elevatorBufferCommunicator.start();
+		new Thread(elevatorBufferCommunicator).start();
 	     
      	ArrayList<Elevator> elevators = new ArrayList<Elevator>();
      	elevators.add(elevator1);      
@@ -192,8 +192,8 @@ public class SchedulerSystem {
 		
 		
 		
-		floorBufferCommunicator2.start();
-		elevatorBufferCommunicator2.start();
+		new Thread(floorBufferCommunicator2).start();
+		new Thread(elevatorBufferCommunicator2).start();
 		
 	}
 }
