@@ -163,10 +163,14 @@ public class SchedulerSystem {
 		receivePort =  70;
 		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
+		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
+		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
 		new Thread(elevatorBufferCommunicator).start();
 	     
      	ArrayList<Elevator> elevators = new ArrayList<Elevator>();
-     	elevators.add(elevator1);      
+     	elevators.add(elevator1);  
+     	elevators.add(elevator2);  
+     	elevators.add(elevator3);      
       
      	Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
      	elevatorSystem.start();		

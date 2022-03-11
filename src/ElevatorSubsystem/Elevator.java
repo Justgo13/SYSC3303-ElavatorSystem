@@ -248,7 +248,7 @@ public class Elevator implements Runnable {
 			// IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED
 			switch (this.currentState) {
 			case IDLE: {
-				System.out.println("State: Idle -> " + formatter.format(new Date(System.currentTimeMillis())));
+				System.out.println("Elevator " + this.elevatorId + ": Idle -> " + formatter.format(new Date(System.currentTimeMillis())));
 				this.interruptedWhileMoving = false;
 				
 				// Wait until we receive a ServiceFloorRequest
@@ -276,7 +276,7 @@ public class Elevator implements Runnable {
 					this.direction = "down";
 					this.currentState = STATES.MOVING;
 				} else {
-					System.out.printf("Invalid floor combo src: %d dest: %d", srcFloor, destFloor);
+					System.out.printf("Elevator " + this.elevatorId + ": Invalid floor combo src: %d dest: %d", srcFloor, destFloor);
 					break;
 				}
 				
@@ -293,7 +293,7 @@ public class Elevator implements Runnable {
 				if (!this.interruptedWhileMoving) {
 					this.departureTime = System.currentTimeMillis();
 				}
-				System.out.println("State: Moving -> " + formatter.format(new Date(System.currentTimeMillis())));
+				System.out.println("Elevator " + this.elevatorId + ": State: Moving -> " + formatter.format(new Date(System.currentTimeMillis())));
 
 				// Floor elevator is going to move towards
 				int destFloor = this.floorBuffer.get(0);
@@ -418,7 +418,7 @@ public class Elevator implements Runnable {
 				// Remove the floor we have stopped at from the floorBuffer
 				int floor = this.removeFloorBufferHead();
 				
-				System.out.println("State: Stopped at floor " + floor + " FloorBuffer: " + this.floorBuffer.toString()
+				System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + floor + " FloorBuffer: " + this.floorBuffer.toString()
 						+ " -> " + formatter.format(new Date(System.currentTimeMillis())));
 				this.setCurrentFloor(floor);
 				
@@ -436,7 +436,7 @@ public class Elevator implements Runnable {
 
 			case DOORS_OPEN:
 				// Elevator doors are now open
-				System.out.println("State: DoorsOpen -> " + " FloorBuffer: " + this.floorBuffer.toString() + " "
+				System.out.println("Elevator " + this.elevatorId + ": State: DoorsOpen -> " + " FloorBuffer: " + this.floorBuffer.toString() + " "
 						+ formatter.format(new Date(System.currentTimeMillis())));
 				this.doorOpen = true;
 				
@@ -547,7 +547,7 @@ public class Elevator implements Runnable {
 				break;
 
 			case DOORS_CLOSED:
-				System.out.println("State: DoorsClosed -> " + formatter.format(new Date(System.currentTimeMillis())));
+				System.out.println("Elevator " + this.elevatorId + ": State: DoorsClosed -> " + formatter.format(new Date(System.currentTimeMillis())));
 				
 				// Reset both flags that indicate if we are interrupted by messages in those states
 				this.interruptedWhileDoorsOpen = false;
