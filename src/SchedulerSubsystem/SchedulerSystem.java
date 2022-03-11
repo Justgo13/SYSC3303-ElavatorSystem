@@ -14,8 +14,8 @@ import SharedResources.ByteBufferCommunicator;
 /**
  * @author Michael Quach, Kevin Quach
  * 
- *         For iteration 2, the scheduler system holds the state of the elevators, computed from arrival messages, accept/decline service request messages.
- *         It is also responsible for scheduler request and response handler threads which communicate to the floor and elevator systems.
+ *         For iteration 3, the scheduler system holds the state of the elevators, computed from arrival udp messages, accept/decline service request udp messages.
+ *         It is also responsible for scheduler request and response handler threads which communicate to the floor and elevator systems via udp.
  *
  */
 public class SchedulerSystem {
@@ -23,6 +23,7 @@ public class SchedulerSystem {
 	private ByteBufferCommunicator floorBufferCommunicator;
 	private ArrayList<SchedulerElevatorData> elevatorData;
 	private Map<Integer, Boolean> requestResponses;
+	private boolean elevatorsStateChanged;
 	
 	/**
 	 * 
@@ -38,6 +39,7 @@ public class SchedulerSystem {
 		this.elevatorData = new ArrayList<SchedulerElevatorData>();
 		this.requestResponses = new HashMap<>();
 		addElevators(numElevators);
+		this.elevatorsStateChanged = true; //so the first getElevatorData() attempt will work regardless of if the state has changed yet, as it was only first created
 	}
 	
 	/**
@@ -71,6 +73,7 @@ public class SchedulerSystem {
 			AcceptFloorRequestMessage acceptMsg = (AcceptFloorRequestMessage) updateMessage;
 			elevatorData.get(acceptMsg.getElevatorId()).setDestinationFloor(acceptMsg.getElevatorFloorBuffer());	//updates which floors the elevator will plan to visit, now that it has accepted
 			requestResponses.put(acceptMsg.getRequestID(), true);	//Updates service request with elevator's response, via corresponding ID
+			this.elevatorsStateChanged = true;
 			break;
 		case DECLINE_FLOOR_REQUEST_MESSAGE:
 			DeclineFloorRequestMessage declineMsg = (DeclineFloorRequestMessage) updateMessage;
@@ -79,7 +82,8 @@ public class SchedulerSystem {
 		case ARRIVAL_ELEVATOR_MESSAGE:
 			ArrivalElevatorMessage arrivalMsg = (ArrivalElevatorMessage) updateMessage;
 			elevatorData.get(arrivalMsg.getElevatorId()).setCurrentFloor(arrivalMsg.getCurrentFloor());
-			elevatorData.get(arrivalMsg.getElevatorId()).setDestinationFloor(arrivalMsg.getFloorBuffer());	
+			elevatorData.get(arrivalMsg.getElevatorId()).setDestinationFloor(arrivalMsg.getFloorBuffer());
+			this.elevatorsStateChanged = true;
 			break;
 		default:
 			System.out.println("Unexpected message type.");
@@ -95,7 +99,7 @@ public class SchedulerSystem {
 	 * @return arraylist of elevator states.
 	 */
 	public synchronized ArrayList<SchedulerElevatorData> getElevatorData() {
-		while(!elevatorBufferCommunicator.isMessageListEmpty()) {	//Need to wait until all changes to elevator states are made before retrieving
+		while(!elevatorBufferCommunicator.isMessageListEmpty() || !this.elevatorsStateChanged) {	//Need to wait until all changes to elevator states are made before retrieving and the elevator state has changed
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -103,6 +107,7 @@ public class SchedulerSystem {
 			}
 		}
 		notifyAll();
+		this.elevatorsStateChanged = false;
 		return elevatorData;
 	}
 	
@@ -130,7 +135,7 @@ public class SchedulerSystem {
 	/** 
 	 * Start the floor, elevator, and scheduler subsystems.
 	 * 
-	 * Iteration 2 sequence
+	 * Iteration 3 sequence
 	 * 1. Floor reads events from file
 	 * 2. Floor parses and stores events as messages
 	 * 3. Floor sends messages to scheduler
