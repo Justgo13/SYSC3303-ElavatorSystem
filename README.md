@@ -26,7 +26,7 @@ Open the project in eclipse -> right click the test folder -> Run As -> JUnit Te
 
 ## Documentation
 Documentation is found in doc/
-UML and state machine is in doc/uml_docs
+UML and state machine is in uml_docs
 
 ## Iteration 0
 
@@ -135,6 +135,8 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Revised scheduler state machine diagram to reflect iteration
 
 #####  Shashaank Srivastava
+- Implemented UDP messaging (shared)
+- UML class and sequence diagrams
   
 #####  Harjap Gill
 - Implemented UDP messaging (shared)
