@@ -89,7 +89,7 @@ public class SchedulerRequestHandler implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			byte[] firstRequest = floorBufferCommunicator.getRequestBuffer();
+			byte[] firstRequest = floorBufferCommunicator.getUDPMessage();
 			
 			try {
 				Message firstMessage = SerializeUtils.deserialize(firstRequest);
@@ -99,23 +99,14 @@ public class SchedulerRequestHandler implements Runnable {
 				
 				while (!acceptedRequest) {
 					
-					ArrayList<SchedulerElevatorData> elevators = schedulerSystem.getElevatorData();
+					ArrayList<SchedulerElevatorData> elevators = schedulerSystem.getElevatorData(); //todo: break this wait if there's a different request we could try to fulfill?
 					ServiceFloorRequestMessage requestMessage = makeRequest(firstRequestMessage, elevators);
-					elevatorBufferCommunicator.putRequestBuffer(SerializeUtils.serialize(requestMessage));
+					elevatorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(requestMessage));
 					acceptedRequest = schedulerSystem.getRequestResponse(requestMessage.getRequestID()); //message ids need to be implemented
 					//System.out.printf("Request %d handled \n", requestMessage.getRequestID());
 					System.out.println(requestMessage);
-					
-					// sleep 5 seconds before retrying failed requests
-					if (!acceptedRequest) {
-						Thread.sleep(5000);
-					}
 				}
 			} catch (ClassNotFoundException | IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

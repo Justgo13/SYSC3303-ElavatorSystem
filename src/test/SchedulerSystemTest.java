@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,21 +24,27 @@ import SharedResources.ByteBufferCommunicator;
  */
 class SchedulerSystemTest {
 	
-	private SchedulerSystem schedulerSystem;
-	private ByteBufferCommunicator elevatorBufComm, floorBufComm;
+	private static SchedulerSystem schedulerSystem;
+	private static ByteBufferCommunicator elevatorBufComm, floorBufComm;
 	
-	@BeforeEach
-	void setUp() throws Exception {
-		elevatorBufComm = new ByteBufferCommunicator();
-		floorBufComm = new ByteBufferCommunicator();
+	@BeforeAll
+	static void setUp() throws Exception {
+		int sendPort = 25;
+		int receivePort = 26;
+		floorBufComm = new ByteBufferCommunicator(sendPort, receivePort);
+		
+		sendPort = 73;
+		receivePort =  74;
+		elevatorBufComm = new ByteBufferCommunicator(sendPort, receivePort);
 		schedulerSystem = new SchedulerSystem(elevatorBufComm, floorBufComm, 1);
 	}
 
 	@Test
 	@DisplayName("Add elevator")
 	void testAddElevators() {
+		schedulerSystem = new SchedulerSystem(elevatorBufComm, floorBufComm, 1); // override what is done in setUp
 		schedulerSystem.addElevators(1);
-		assertEquals(schedulerSystem.getElevatorData().size(), 2);
+		assertEquals(2, schedulerSystem.getElevatorData().size());
 	}
 	
 	@Test
@@ -94,5 +102,4 @@ class SchedulerSystemTest {
 		assertEquals(schedulerSystem.getElevatorData().get(1).getDestinationFloor(), emptyBuffer);
 		assertEquals(schedulerSystem.getElevatorData().get(1).getCurrentFloor(), 4);
 	}
-
 }

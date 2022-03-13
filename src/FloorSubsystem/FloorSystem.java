@@ -61,7 +61,7 @@ public class FloorSystem implements Runnable{
 			
 			try {
 				Thread.sleep((long) (currentTime - timeZero));
-				floorBufferCommunicator.putRequestBuffer(SerializeUtils.serialize(currentMsg));
+				floorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

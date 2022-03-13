@@ -29,8 +29,13 @@ class SchedulerRequestHandlerTest {
 
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
-		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator();
-		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator();
+		int sendPort = 23;
+		int receivePort = 24;
+		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		
+		sendPort = 69;
+		receivePort =  70;
+		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator, floorBufferCommunicator, 0);
 		requestHandler = new SchedulerRequestHandler(elevatorBufferCommunicator, floorBufferCommunicator, schedulerSystem);
 	}

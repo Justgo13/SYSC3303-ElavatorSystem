@@ -26,7 +26,7 @@ Open the project in eclipse -> right click the test folder -> Run As -> JUnit Te
 
 ## Documentation
 Documentation is found in doc/
-UML and state machine is in doc/uml_docs
+UML and state machine is in uml_docs
 
 ## Iteration 0
 
@@ -117,3 +117,27 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Scheduler state machine (shared)
 - Elevator state machine (shared work)
 - Pair programming with Jason Gao
+
+## Iteration 3 Work Distribution
+##### Jason Gao
+- Implemented UDP messaging (shared)
+- Fixed unit tests (shared)
+
+#####  Kevin Quach
+- Implemented scheduler handling multiple elevators (shared)
+- Implemented scheduler handling requests only on elevator state change (shared)
+- Added elevator IDs to messages
+- Revised sequence diagram pertaining to scheduler threads
+
+#####  Michael Quach
+- Implemented scheduler handling multiple elevators (shared)
+- Implemented scheduler handling requests only on elevator state change (shared)
+- Revised scheduler state machine diagram to reflect iteration
+
+#####  Shashaank Srivastava
+- Implemented UDP messaging (shared)
+- UML class and sequence diagrams
+  
+#####  Harjap Gill
+- Implemented UDP messaging (shared)
+- Fixed unit tests (shared)

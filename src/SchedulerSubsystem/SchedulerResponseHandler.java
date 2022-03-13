@@ -57,7 +57,7 @@ public class SchedulerResponseHandler implements Runnable {
 		FloorLightResponseMessage floorResponseMessage = new FloorLightResponseMessage(elevatorID, currFloor, direction);
 		try {
 			byte[] floorResponseBytes = SerializeUtils.serialize((Message) floorResponseMessage);
-			floorBufferCommunicator.putResponseBuffer(floorResponseBytes);			
+			floorBufferCommunicator.sendUDPMessage(floorResponseBytes);			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -70,7 +70,7 @@ public class SchedulerResponseHandler implements Runnable {
 	 */
 	public void run() {
 		while (true) {
-			byte[] elevatorResponseBytes = elevatorBufferCommunicator.getResponseBuffer();
+			byte[] elevatorResponseBytes = elevatorBufferCommunicator.getUDPMessage();
 			try {
 				Message elevatorResponseMessage = SerializeUtils.deserialize(elevatorResponseBytes);
 				schedulerSystem.updateElevators(elevatorResponseMessage);
