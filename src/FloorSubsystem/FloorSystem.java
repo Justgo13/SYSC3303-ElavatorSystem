@@ -74,4 +74,18 @@ public class FloorSystem implements Runnable{
 //			}
 		}		
 	}
+	
+	public static void main(String[] args) {
+//		int sendPort = 23;
+//		int receivePort = 24;
+//		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+//		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator);
+//		Thread floorSystemThread = new Thread(floorSystem);	//TODO maybe make this thread be spawned by floor system itself
+//		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
+//		new Thread(floorBufferCommunicator).start();
+//		
+//
+//		floorSystemThread.start();
+//		floorResponseHandler.start();
+	}
 }

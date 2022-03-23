@@ -191,8 +191,8 @@ public class SchedulerSystem {
 		ByteBufferCommunicator elevatorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
 		
 		
-		
-		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2, elevators.size());
+		// TODO Remove hardcode of 3
+		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2, 3);
 		Thread schedulerRequestHandler = new Thread(new SchedulerRequestHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
 		Thread schedulerResponseHandler = new Thread(new SchedulerResponseHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
 		
