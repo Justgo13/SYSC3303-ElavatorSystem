@@ -46,15 +46,10 @@ public class FloorDataParser {
 				
 				int fault = Integer.parseInt(lineAsArrayList.get(5));
 				
-				if(fault > 0) {
-					
-				}
-				else {
 					//FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
-					FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
-					
-					FloorSystem.addFloorEntry((Message) fdms);
-				}
+				FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor, fault);
+				
+				FloorSystem.addFloorEntry((Message) fdms);
 	
 
 			}

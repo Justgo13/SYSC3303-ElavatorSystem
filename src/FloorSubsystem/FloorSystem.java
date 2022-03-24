@@ -6,6 +6,7 @@ import java.util.List;
 import Messages.FloorDataMessage;
 import Messages.Message;
 import SharedResources.ByteBufferCommunicator;
+import SharedResources.FaultType;
 import SharedResources.SerializeUtils;
 
 /**
@@ -19,6 +20,7 @@ public class FloorSystem implements Runnable{
 	private FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
 	private static List<Message> floorDataEntry = new ArrayList<Message>(); // list of floor entries where each entry is a byte array
 	private ByteBufferCommunicator floorBufferCommunicator;
+	private ByteBufferCommunicator faultBufferCommunicator;
 	private Floor floor;
 
 	/**
@@ -26,8 +28,9 @@ public class FloorSystem implements Runnable{
 	 * @param floorDataFilename the filename of the data used to simulate an elevator system.
 	 * @param floorBufferCommunicator a reference to the Scheduler's communicator
 	 */
-	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator) {
+	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator, ByteBufferCommunicator faultBufferCommunicator) {
 		this.floorBufferCommunicator = floorBufferCommunicator;
+		this.faultBufferCommunicator = faultBufferCommunicator;
 		floor = new Floor(); 
 		parser.parseFile(floorDataFilename);
 	}
@@ -61,7 +64,12 @@ public class FloorSystem implements Runnable{
 			
 			try {
 				Thread.sleep((long) (currentTime - timeZero));
-				floorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
+				
+				if (currentMsg.getFaultType() != FaultType.NO_FAULT) {
+					faultBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
+				} else {
+					floorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
+				}
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

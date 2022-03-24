@@ -153,7 +153,10 @@ public class SchedulerSystem {
 		int sendPort = 23;
 		int receivePort = 24;
 		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator);
+		sendPort = 25;
+		receivePort = 26;
+		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
 		Thread floorSystemThread = new Thread(floorSystem);	//TODO maybe make this thread be spawned by floor system itself
 		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
 		new Thread(floorBufferCommunicator).start();
