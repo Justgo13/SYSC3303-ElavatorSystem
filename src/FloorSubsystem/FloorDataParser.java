@@ -43,11 +43,20 @@ public class FloorDataParser {
 
 				// get destination floor
 				int destinationFloor = Integer.parseInt(lineAsArrayList.get(3));
-	
-				//FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
-				FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
 				
-				FloorSystem.addFloorEntry((Message) fdms);
+				int fault = Integer.parseInt(lineAsArrayList.get(5));
+				
+				if(fault > 0) {
+					
+				}
+				else {
+					//FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
+					FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
+					
+					FloorSystem.addFloorEntry((Message) fdms);
+				}
+	
+
 			}
 			fileReader.close();
 		} catch (FileNotFoundException e) {
