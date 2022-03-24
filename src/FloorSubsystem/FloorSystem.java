@@ -17,6 +17,10 @@ import SharedResources.SerializeUtils;
  *
  */
 public class FloorSystem implements Runnable{
+	public final static int FLOOR_SEND_PORT = 23;
+	public final static int FLOOR_RECEIVE_PORT = 24;
+	public final static int FAULT_SEND_PORT = 25;
+	public final static int FAULT_RECEIVE_PORT = 26;
 	private FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
 	private static List<Message> floorDataEntry = new ArrayList<Message>(); // list of floor entries where each entry is a byte array
 	private ByteBufferCommunicator floorBufferCommunicator;

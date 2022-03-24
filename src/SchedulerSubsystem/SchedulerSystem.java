@@ -150,11 +150,11 @@ public class SchedulerSystem {
 	 */
 	public static void main(String[] args) {
 		// floor
-		int sendPort = 23;
-		int receivePort = 24;
+		int sendPort = FloorSystem.FLOOR_SEND_PORT;
+		int receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
 		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		sendPort = 25;
-		receivePort = 26;
+		sendPort = FloorSystem.FAULT_SEND_PORT;
+		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
 		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
 		Thread floorSystemThread = new Thread(floorSystem);	//TODO maybe make this thread be spawned by floor system itself
@@ -167,8 +167,8 @@ public class SchedulerSystem {
 		
 		
 		// elevator
-		sendPort = 69;
-		receivePort =  70;
+		sendPort = ElevatorSystem.SEND_PORT;
+		receivePort = ElevatorSystem.RECEIVE_PORT;
 		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
 		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
@@ -184,19 +184,18 @@ public class SchedulerSystem {
      	elevatorSystem.start();		
      	
      	//  scheduler <-> floor (thread 1)
-		sendPort = 24;
-		receivePort = 23;
+		sendPort = FloorSystem.FLOOR_RECEIVE_PORT;
+		receivePort = FloorSystem.FLOOR_SEND_PORT;
 		ByteBufferCommunicator floorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
 		
 		// scheduler <-> elevator (thread 2)
-		sendPort = 70;
-		receivePort = 69;
+		sendPort = ElevatorSystem.RECEIVE_PORT;
+		receivePort = ElevatorSystem.SEND_PORT;
 		ByteBufferCommunicator elevatorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
 		
-		
-		// TODO Remove hardcode of 3
+
 		// TODO Might need to give faultBufferCommunicator
-		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2, 3);
+		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2, ElevatorSystem.NUM_ELEVATORS);
 		Thread schedulerRequestHandler = new Thread(new SchedulerRequestHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
 		Thread schedulerResponseHandler = new Thread(new SchedulerResponseHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
 		
