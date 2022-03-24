@@ -195,6 +195,7 @@ public class SchedulerSystem {
 		
 		
 		// TODO Remove hardcode of 3
+		// TODO Might need to give faultBufferCommunicator
 		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2, 3);
 		Thread schedulerRequestHandler = new Thread(new SchedulerRequestHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
 		Thread schedulerResponseHandler = new Thread(new SchedulerResponseHandler(elevatorBufferCommunicator2, floorBufferCommunicator2, schedulerSystem));
