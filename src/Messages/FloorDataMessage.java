@@ -1,7 +1,6 @@
 package Messages;
 
 import SharedResources.DirectionEnum;
-import SharedResources.FaultType;
 
 /**
  * The message created when sending a floor request
@@ -15,7 +14,6 @@ public class FloorDataMessage extends Message{
 	private int floorNumber;
 	private DirectionEnum direction;
 	private int destinationNumber;
-	private FaultType fault;
 
 	/**
 	 * Constructor to create FloorDataMessage
@@ -24,30 +22,13 @@ public class FloorDataMessage extends Message{
 	 * @param floorNumber indicating the floor of the message
 	 * @param direction to set direction of the message
 	 * @param destinationNumber destination floor of the message
-	 * @param fault 
 	 */
-	public FloorDataMessage(float timeStamp, int floorNumber, DirectionEnum direction, int destinationNumber, int fault) {
+	public FloorDataMessage(float timeStamp, int floorNumber, DirectionEnum direction, int destinationNumber) {
 		super();
 		this.timeStamp = timeStamp;
 		this.floorNumber = floorNumber;
 		this.direction = direction;
 		this.destinationNumber = destinationNumber;
-		
-		switch (fault) {
-		case 0:
-			this.fault = FaultType.NO_FAULT;
-			break;
-		case 1:
-			this.fault = FaultType.TRANSIENT;
-			break;
-		case 2:
-			this.fault = FaultType.HARD;
-			break;
-
-		default:
-			break;
-		}
-		
 	}
 	
 	@Override
@@ -94,13 +75,5 @@ public class FloorDataMessage extends Message{
 	 */
 	public int getDestinationNumber() {
 		return destinationNumber;
-	}
-	
-	/**
-	 * 
-	 * @return The elevator fault enum
-	 */
-	public FaultType getFaultType() {
-		return fault;
 	}
 }
