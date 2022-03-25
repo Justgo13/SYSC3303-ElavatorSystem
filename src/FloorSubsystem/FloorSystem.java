@@ -1,10 +1,14 @@
 package FloorSubsystem;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import Messages.ElevatorHardFaultMessage;
+import Messages.ElevatorTransientFaultMessage;
 import Messages.FloorDataMessage;
 import Messages.Message;
+import Messages.MessageTypes;
 import SharedResources.ByteBufferCommunicator;
 import SharedResources.SerializeUtils;
 
@@ -15,53 +19,88 @@ import SharedResources.SerializeUtils;
  *         gets from file input to the scheduler
  *
  */
-public class FloorSystem implements Runnable{
+public class FloorSystem implements Runnable {
+	public final static int FLOOR_SEND_PORT = 23;
+	public final static int FLOOR_RECEIVE_PORT = 24;
+	public final static int FAULT_SEND_PORT = 25;
+	public final static int FAULT_RECEIVE_PORT = 26;
 	private FloorDataParser parser = new FloorDataParser(); // reference to the floor data parser
-	private static List<Message> floorDataEntry = new ArrayList<Message>(); // list of floor entries where each entry is a byte array
+	private static List<Message> floorMessageList = new ArrayList<Message>(); // list of floor entries where each entry
+																				// is a byte array
 	private ByteBufferCommunicator floorBufferCommunicator;
+	private ByteBufferCommunicator faultBufferCommunicator;
 	private Floor floor;
 
 	/**
 	 * Constructs a FloorSystem.
-	 * @param floorDataFilename the filename of the data used to simulate an elevator system.
+	 * 
+	 * @param floorDataFilename       the filename of the data used to simulate an
+	 *                                elevator system.
 	 * @param floorBufferCommunicator a reference to the Scheduler's communicator
 	 */
-	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator) {
+	public FloorSystem(String floorDataFilename, ByteBufferCommunicator floorBufferCommunicator,
+			ByteBufferCommunicator faultBufferCommunicator) {
 		this.floorBufferCommunicator = floorBufferCommunicator;
-		floor = new Floor(); 
+		this.faultBufferCommunicator = faultBufferCommunicator;
+		floor = new Floor();
 		parser.parseFile(floorDataFilename);
-	}
-	
-	/**
-	 * Method for adding to the floor data entry list
-	 * @param fdms The floor message as bytes
-	 */
-	public static void addFloorEntry(Message fdms) {
-		floorDataEntry.add(fdms);
 	}
 
 	/**
-	 * Sends each message to the scheduler and receives and prints a message back for each entry in (floorDataFilename).txt.
+	 * Method for adding to the floor data entry list
+	 * 
+	 * @param fdms The floor message as bytes
+	 */
+	public static void addFloorMessage(Message fdms) {
+		floorMessageList.add(fdms);
+	}
+
+	/**
+	 * Sends each message to the scheduler and receives and prints a message back
+	 * for each entry in (floorDataFilename).txt.
 	 */
 	@Override
 	public void run() {
-		//Assume that for iteration 1, each message sent by the floor will eventually be received again
-		float timeZero = 0;
-		for(int i = 0; i < floorDataEntry.size(); i++) {
+		// Assume that for iteration 1, each message sent by the floor will eventually
+		// be received again
+		float lastTime = 0;
+		for (int i = 0; i < floorMessageList.size(); i++) {
 			System.out.println("Sending message from Floor System to Scheduler.");
-			if (i == 0) {
-				FloorDataMessage msg = (FloorDataMessage) floorDataEntry.get(i);
-				timeZero = msg.getTimeStamp();
+			// current message time
+			Message currentMsg = floorMessageList.get(i);
+			float currentTime = 0;
+			
+			switch (currentMsg.getMessageType()) {
+			case FLOOR_DATA_MESSAGE:
+				currentMsg = (FloorDataMessage) currentMsg;
+				currentTime = ((FloorDataMessage) currentMsg).getTimeStamp();
+				break;
+			case ELEVATOR_TRANSIENT_FAULT:
+				currentMsg = (ElevatorTransientFaultMessage) currentMsg;
+				currentTime = ((ElevatorTransientFaultMessage) currentMsg).getTimestamp();
+				break;
+				
+			case ELEVATOR_HARD_FAULT:
+				currentMsg = (ElevatorHardFaultMessage) currentMsg;
+				currentTime = ((ElevatorHardFaultMessage) currentMsg).getTimestamp();
+				break;
+
+			default:
+				break;
 			}
 			
 			
-			// current message time
-			FloorDataMessage currentMsg = (FloorDataMessage) floorDataEntry.get(i);
-			float currentTime = currentMsg.getTimeStamp();
-			
+
 			try {
-				Thread.sleep((long) (currentTime - timeZero));
-				floorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
+				Thread.sleep((long) (currentTime - lastTime) * 1000);
+
+				if (currentMsg.getMessageType() == MessageTypes.ELEVATOR_TRANSIENT_FAULT
+						|| currentMsg.getMessageType() == MessageTypes.ELEVATOR_HARD_FAULT) {
+					faultBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
+				} else {
+					floorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(currentMsg));
+				}
+				lastTime = currentTime;
 			} catch (IOException | InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -72,9 +111,9 @@ public class FloorSystem implements Runnable{
 //			} catch (ClassNotFoundException | IOException e) {
 //				e.printStackTrace();
 //			}
-		}		
+		}
 	}
-	
+
 	public static void main(String[] args) {
 //		int sendPort = 23;
 //		int receivePort = 24;

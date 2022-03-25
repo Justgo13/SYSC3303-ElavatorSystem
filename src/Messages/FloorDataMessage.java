@@ -1,5 +1,7 @@
 package Messages;
 
+import SharedResources.DirectionEnum;
+
 /**
  * The message created when sending a floor request
  * 
@@ -10,7 +12,7 @@ public class FloorDataMessage extends Message{
 	private static final long serialVersionUID = 1L;
 	private float timeStamp;
 	private int floorNumber;
-	private String direction;
+	private DirectionEnum direction;
 	private int destinationNumber;
 
 	/**
@@ -21,7 +23,7 @@ public class FloorDataMessage extends Message{
 	 * @param direction to set direction of the message
 	 * @param destinationNumber destination floor of the message
 	 */
-	public FloorDataMessage(float timeStamp, int floorNumber, String direction, int destinationNumber) {
+	public FloorDataMessage(float timeStamp, int floorNumber, DirectionEnum direction, int destinationNumber) {
 		super();
 		this.timeStamp = timeStamp;
 		this.floorNumber = floorNumber;
@@ -63,7 +65,7 @@ public class FloorDataMessage extends Message{
 	 * 
 	 * @return The direction (up/down) in the message
 	 */
-	public String getDirection() {
+	public DirectionEnum getDirection() {
 		return direction;
 	}
 	

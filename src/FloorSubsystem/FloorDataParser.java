@@ -1,4 +1,5 @@
 package FloorSubsystem;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -6,8 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+import Messages.ElevatorHardFaultMessage;
+import Messages.ElevatorTransientFaultMessage;
 import Messages.FloorDataMessage;
 import Messages.Message;
+import SharedResources.DirectionEnum;
 
 /**
  * @author Jason Gao
@@ -35,19 +39,45 @@ public class FloorDataParser {
 				// get timestamp
 				float timestamp = this.timestampToFloat(lineAsArrayList.get(0));
 
-				// get current floor
-				int currFloor = Integer.parseInt(lineAsArrayList.get(1));
+				String messageIdentifier = lineAsArrayList.get(1);
 
-				// get elevator direction
-				String direction = lineAsArrayList.get(2);
+				Message fm = null;
+				switch (messageIdentifier) {
+				case "floor_message": {
+					// get current floor
+					int currFloor = Integer.parseInt(lineAsArrayList.get(2));
 
-				// get destination floor
-				int destinationFloor = Integer.parseInt(lineAsArrayList.get(3));
-	
-				//FloorDataMessageSerializable fdms = new FloorDataMessageSerializable(timestamp, currFloor, direction, destinationFloor);
-				FloorDataMessage fdms = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
-				
-				FloorSystem.addFloorEntry((Message) fdms);
+					// get elevator direction
+					DirectionEnum direction = lineAsArrayList.get(3) == "Up" ? DirectionEnum.UP_DIRECTION
+							: DirectionEnum.DOWN_DIRECTION;
+
+					// get destination floor
+					int destinationFloor = Integer.parseInt(lineAsArrayList.get(4));
+
+					fm = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
+					break;
+				}
+				case "transient_fault": {
+					int elevatorID = Integer.parseInt(lineAsArrayList.get(2));
+
+					int timeOfFault = Integer.parseInt(lineAsArrayList.get(3));
+
+					fm = new ElevatorTransientFaultMessage(timeOfFault, elevatorID, timestamp);
+					break;
+				}
+				case "hard_fault": {
+					int elevatorID = Integer.parseInt(lineAsArrayList.get(2));
+
+					fm = new ElevatorHardFaultMessage(elevatorID, timestamp);
+					break;
+				}
+
+				default:
+					break;
+				}
+
+				FloorSystem.addFloorMessage(fm);
+
 			}
 			fileReader.close();
 		} catch (FileNotFoundException e) {

@@ -35,7 +35,7 @@ public class SchedulerRequestHandler implements Runnable {
 		//if there's an idle elevator at the requesting floor, use it, otherwise, check all the elevators
 		for (SchedulerElevatorData elevator : elevators) {
 			if (elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && elevator.getCurrentFloor() == originFloor) { //todo: check if they also have any destinations
-				String direction = (originFloor > destinationFloor) ? "down" : "up";
+				DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
 				return new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator));
 			}
 			
@@ -53,11 +53,11 @@ public class SchedulerRequestHandler implements Runnable {
 		//send it to the closest elevator moving in the same direction (including the direction of the request)
 			//closest means the elevator's current floor is the closest to the request's origin floor
 		DirectionEnum desiredDirection = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
-		DirectionEnum requestDirection = (request.getDirection().toLowerCase().equals("down")) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
+		DirectionEnum requestDirection = (request.getDirection() == DirectionEnum.DOWN_DIRECTION) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
 		
 		for (SchedulerElevatorData elevator : elevators) {
 			if (elevator.getDirection() == desiredDirection && elevator.getDirection() == requestDirection && Math.abs(originFloor - elevator.getCurrentFloor()) == minOriginDistance) {
-				String direction = (originFloor > destinationFloor) ? "down" : "up";
+				DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
 				return new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator));
 			}
 		}
@@ -67,7 +67,7 @@ public class SchedulerRequestHandler implements Runnable {
 			//direction moved after arriving at origin doesn't matter because it was empty
 		for (SchedulerElevatorData elevator : elevators) {
 			if (elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && Math.abs(originFloor - elevator.getCurrentFloor()) == minOriginDistance) {
-				String direction = (originFloor > destinationFloor) ? "down" : "up";
+				DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
 				return new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator));
 			}
 		}
@@ -78,7 +78,7 @@ public class SchedulerRequestHandler implements Runnable {
 		for (SchedulerElevatorData elevator : elevators) {
 			//it should be guaranteed that there is such an elevator
 			if (elevator.getDestinationFloor().size() != 0 && Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) == minDestinationDistance) {
-				String direction = (originFloor > destinationFloor) ? "down" : "up";
+				DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
 				return new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator));
 			}
 		}
