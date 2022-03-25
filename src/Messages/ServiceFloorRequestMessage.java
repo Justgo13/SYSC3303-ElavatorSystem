@@ -102,7 +102,7 @@ public class ServiceFloorRequestMessage extends Message {
 	}
 	
 	public String toString() {
-		return "Request id: " + this.requestID + " src floor: " + this.floorNumber +
+		return "Request id: " + this.requestID + " to elevator " + this.elevatorId + " src floor: " + this.floorNumber +
 				" destination floor: " + this.destinationNumber + " direction: " + this.direction;
 	}
 }
