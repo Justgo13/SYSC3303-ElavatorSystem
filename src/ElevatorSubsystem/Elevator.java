@@ -338,7 +338,7 @@ public class Elevator implements Runnable {
 
 					int srcFloorMessage = msg.getFloorNumber();
 					int destFloorMessage = msg.getDestinationNumber();
-					String directionMessage = msg.getDirection();
+					DirectionEnum directionMessage = msg.getDirection();
 					int msgID = msg.getRequestID();
 
 					// still moving
@@ -486,7 +486,7 @@ public class Elevator implements Runnable {
 
 					int srcFloorMessage = msg.getFloorNumber();
 					int destFloorMessage = msg.getDestinationNumber();
-					String directionMessage = msg.getDirection();
+					DirectionEnum directionMessage = msg.getDirection();
 					int msgID = msg.getRequestID();
 
 					// If we have no scheduled floors, then we will always accept floor request
