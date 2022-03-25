@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 import Messages.FloorDataMessage;
 import Messages.Message;
+import SharedResources.DirectionEnum;
 
 /**
  * @author Jason Gao
@@ -15,7 +16,7 @@ import Messages.Message;
  *         A class for parsing floor data file input
  */
 public class FloorDataParser {
-
+	
 	/**
 	 * Opens a floor data file, parses each line into a byte array, then adds the
 	 * byte array to the floor subsystem list of byte array messages
@@ -39,7 +40,7 @@ public class FloorDataParser {
 				int currFloor = Integer.parseInt(lineAsArrayList.get(1));
 
 				// get elevator direction
-				String direction = lineAsArrayList.get(2);
+				DirectionEnum direction = lineAsArrayList.get(2) == "Up" ? DirectionEnum.UP_DIRECTION : DirectionEnum.DOWN_DIRECTION;
 
 				// get destination floor
 				int destinationFloor = Integer.parseInt(lineAsArrayList.get(3));

@@ -3,6 +3,8 @@
  */
 package Messages;
 
+import SharedResources.DirectionEnum;
+
 /**
  * @author Harjap Gill
  *
@@ -13,7 +15,7 @@ public class ServiceFloorRequestMessage extends Message {
 	private int requestID;
 	private int floorNumber;
 	private int destinationNumber;
-	private String direction;
+	private DirectionEnum direction;
 	private int elevatorId;
 	
 	/**
@@ -22,7 +24,7 @@ public class ServiceFloorRequestMessage extends Message {
 	 * @param direction
 	 * @param elevatorId
 	 */
-	public ServiceFloorRequestMessage(int floorNumber, int destinationNumber, String direction, int elevatorId) {
+	public ServiceFloorRequestMessage(int floorNumber, int destinationNumber, DirectionEnum direction, int elevatorId) {
 		super();
 		this.requestID = idCounter++;
 		this.floorNumber = floorNumber;
@@ -74,14 +76,14 @@ public class ServiceFloorRequestMessage extends Message {
 	/**
 	 * @return the direction
 	 */
-	public String getDirection() {
+	public DirectionEnum getDirection() {
 		return direction;
 	}
 
 	/**
 	 * @param direction the direction to set
 	 */
-	public void setDirection(String direction) {
+	public void setDirection(DirectionEnum direction) {
 		this.direction = direction;
 	}
 

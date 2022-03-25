@@ -1,5 +1,6 @@
 package Messages;
 
+import SharedResources.DirectionEnum;
 import SharedResources.FaultType;
 
 /**
@@ -12,7 +13,7 @@ public class FloorDataMessage extends Message{
 	private static final long serialVersionUID = 1L;
 	private float timeStamp;
 	private int floorNumber;
-	private String direction;
+	private DirectionEnum direction;
 	private int destinationNumber;
 	private FaultType fault;
 
@@ -25,7 +26,7 @@ public class FloorDataMessage extends Message{
 	 * @param destinationNumber destination floor of the message
 	 * @param fault 
 	 */
-	public FloorDataMessage(float timeStamp, int floorNumber, String direction, int destinationNumber, int fault) {
+	public FloorDataMessage(float timeStamp, int floorNumber, DirectionEnum direction, int destinationNumber, int fault) {
 		super();
 		this.timeStamp = timeStamp;
 		this.floorNumber = floorNumber;
@@ -83,7 +84,7 @@ public class FloorDataMessage extends Message{
 	 * 
 	 * @return The direction (up/down) in the message
 	 */
-	public String getDirection() {
+	public DirectionEnum getDirection() {
 		return direction;
 	}
 	
