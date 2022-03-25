@@ -6,6 +6,7 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -53,9 +54,9 @@ class SchedulerRequestHandlerTest {
 		e2Dest.add(10);
 		elevators.add(new SchedulerElevatorData(0, e2Dest, DirectionEnum.UP_DIRECTION));
 		
-		ServiceFloorRequestMessage madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 0);
-		assertEquals(madeRequest.getDirection(), "down");
+		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
+		assertEquals(madeRequest.get(0).getElevatorId(), 0);
+		assertEquals(madeRequest.get(0).getDirection(), "down");
 	}
 	
 	@Test
@@ -70,9 +71,9 @@ class SchedulerRequestHandlerTest {
 		e2Dest.add(16);
 		elevators.add(new SchedulerElevatorData(3, e2Dest, DirectionEnum.UP_DIRECTION));
 		
-		ServiceFloorRequestMessage madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 1);
-		assertEquals(madeRequest.getDirection(), "up");
+		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
+		assertEquals(madeRequest.get(0).getElevatorId(), 1);
+		assertEquals(madeRequest.get(0).getDirection(), "up");
 		
 		request = new FloorDataMessage(0.0f, 7, "down", 4);
 		elevators = new ArrayList<>();
@@ -85,8 +86,8 @@ class SchedulerRequestHandlerTest {
 		elevators.add(new SchedulerElevatorData(13, e2Dest, DirectionEnum.DOWN_DIRECTION));
 		
 		madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 1);
-		assertEquals(madeRequest.getDirection(), "down");
+		assertEquals(madeRequest.get(0).getElevatorId(), 1);
+		assertEquals(madeRequest.get(0).getDirection(), "down");
 	}
 	
 	@Test
@@ -100,9 +101,9 @@ class SchedulerRequestHandlerTest {
 		ArrayList<Integer> e2Dest = new ArrayList<>();
 		elevators.add(new SchedulerElevatorData(3, e2Dest, DirectionEnum.IDLE_DIRECTION));
 		
-		ServiceFloorRequestMessage madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 1);
-		assertEquals(madeRequest.getDirection(), "up");
+		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
+		assertEquals(madeRequest.get(0).getElevatorId(), 1);
+		assertEquals(madeRequest.get(0).getDirection(), "up");
 		
 		request = new FloorDataMessage(0.0f, 7, "down", 4);
 		elevators = new ArrayList<>();
@@ -113,8 +114,8 @@ class SchedulerRequestHandlerTest {
 		elevators.add(new SchedulerElevatorData(8, e2Dest, DirectionEnum.IDLE_DIRECTION));
 		
 		madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 1);
-		assertEquals(madeRequest.getDirection(), "down");
+		assertEquals(madeRequest.get(0).getElevatorId(), 1);
+		assertEquals(madeRequest.get(0).getDirection(), "down");
 	}
 	
 	@Test
@@ -133,9 +134,9 @@ class SchedulerRequestHandlerTest {
 		e2Dest.add(2);
 		elevators.add(new SchedulerElevatorData(7, e2Dest, DirectionEnum.DOWN_DIRECTION));
 		
-		ServiceFloorRequestMessage madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 0);
-		assertEquals(madeRequest.getDirection(), "up");
+		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
+		assertEquals(madeRequest.get(0).getElevatorId(), 0);
+		assertEquals(madeRequest.get(0).getDirection(), "up");
 		
 		request = new FloorDataMessage(0.0f, 7, "up", 12);
 		elevators = new ArrayList<>();
@@ -151,8 +152,8 @@ class SchedulerRequestHandlerTest {
 		elevators.add(new SchedulerElevatorData(3, e2Dest, DirectionEnum.UP_DIRECTION));
 		
 		madeRequest = requestHandler.makeRequest(request, elevators);
-		assertEquals(madeRequest.getElevatorId(), 0);
-		assertEquals(madeRequest.getDirection(), "up");
+		assertEquals(madeRequest.get(0).getElevatorId(), 0);
+		assertEquals(madeRequest.get(0).getDirection(), "up");
 	}
 
 }
