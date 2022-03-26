@@ -8,6 +8,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import Messages.FloorDataMessage;
+import SharedResources.DirectionEnum;
 import SharedResources.SerializeUtils;
 
 class SerializeUtilsTest {
@@ -18,7 +19,7 @@ class SerializeUtilsTest {
 		
 		float timeStamp = 0.101f;
 		int floorNumber = 2;
-		String direction = "Up";
+		DirectionEnum direction = DirectionEnum.UP_DIRECTION;
 		int destinationNumber = 5;
 		
 		FloorDataMessage originalObject = new FloorDataMessage(timeStamp, floorNumber, direction, destinationNumber);

@@ -68,7 +68,7 @@ public class SchedulerRequestHandler implements Runnable {
 
         //if there's an idle elevator at the requesting floor, use it, otherwise, check all the elevators
         for (SchedulerElevatorData elevator : elevators) {
-            if (!checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && elevator.getCurrentFloor() == originFloor) { //todo: check if they also have any destinations
+            if (!elevator.getTransientFaulted() && !elevator.getHardFaulted() && !checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && elevator.getCurrentFloor() == originFloor) { //todo: check if they also have any destinations
                 DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
                 prioritizedMessageList.add(new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator)));
                 System.out.println("Elevator " + elevators.indexOf(elevator) + " has priority 0");
@@ -91,7 +91,7 @@ public class SchedulerRequestHandler implements Runnable {
         DirectionEnum requestDirection = (request.getDirection() == DirectionEnum.DOWN_DIRECTION) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
 
         for (SchedulerElevatorData elevator : elevators) {
-            if (!checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDirection() == desiredDirection && elevator.getDirection() == requestDirection && Math.abs(originFloor - elevator.getCurrentFloor()) == minOriginDistance) {
+            if (!elevator.getTransientFaulted() && !elevator.getHardFaulted() && !checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDirection() == desiredDirection && elevator.getDirection() == requestDirection && Math.abs(originFloor - elevator.getCurrentFloor()) == minOriginDistance) {
                 DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
                 prioritizedMessageList.add(new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator)));
                 System.out.println("Elevator " + elevators.indexOf(elevator) + " has priority 1");
@@ -102,7 +102,7 @@ public class SchedulerRequestHandler implements Runnable {
         //closest means the elevator's current floor is the closest to the request's origin floor
         //direction moved after arriving at origin doesn't matter because it was empty
         for (SchedulerElevatorData elevator : elevators) {
-            if (!checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && Math.abs(originFloor - elevator.getCurrentFloor()) == minOriginDistance) {
+            if (!elevator.getTransientFaulted() && !elevator.getHardFaulted() && !checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDirection() == DirectionEnum.IDLE_DIRECTION && Math.abs(originFloor - elevator.getCurrentFloor()) == minOriginDistance) {
                 DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
                 prioritizedMessageList.add(new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator)));
                 System.out.println("Elevator " + elevators.indexOf(elevator) + " has priority 2");
@@ -114,7 +114,7 @@ public class SchedulerRequestHandler implements Runnable {
         //can move in the opposite direction after arriving at origin, which is not ideal, but guarantees that it is serviced
         for (SchedulerElevatorData elevator : elevators) {
             //it should be guaranteed that there is such an elevator
-            if (!checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDestinationFloor().size() != 0 && Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) == minDestinationDistance) {
+            if (!elevator.getTransientFaulted() && !elevator.getHardFaulted() && !checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator)) && elevator.getDestinationFloor().size() != 0 && Math.abs(originFloor - elevator.getDestinationFloor().get(elevator.getDestinationFloor().size() - 1)) == minDestinationDistance) {
                 DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
                 prioritizedMessageList.add(new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator)));
                 System.out.println("Elevator " + elevators.indexOf(elevator) + " has priority 3");
@@ -124,7 +124,7 @@ public class SchedulerRequestHandler implements Runnable {
         //try every other remaining elevator
         for (SchedulerElevatorData elevator : elevators) {
             //it should be guaranteed that there is such an elevator
-            if (!checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator))) {
+            if (!elevator.getTransientFaulted() && !elevator.getHardFaulted() && !checkElevatorInRequestMessageList(prioritizedMessageList, elevators.indexOf(elevator))) {
                 DirectionEnum direction = (originFloor > destinationFloor) ? DirectionEnum.DOWN_DIRECTION : DirectionEnum.UP_DIRECTION;
                 prioritizedMessageList.add(new ServiceFloorRequestMessage(originFloor, destinationFloor, direction, elevators.indexOf(elevator)));
                 System.out.println("Elevator " + elevators.indexOf(elevator) + " has priority 4");

@@ -13,6 +13,8 @@ public class SchedulerElevatorData {
 	private int currentFloor;
 	private ArrayList<Integer> destinationFloor;
 	private DirectionEnum direction;
+	private boolean hardFaulted;
+	private boolean transientFaulted;
 	
 	/**
 	 * Constructs default elevator data object, stores state of given elevator
@@ -21,6 +23,8 @@ public class SchedulerElevatorData {
 		this.currentFloor = 1;
 		this.destinationFloor = new ArrayList<Integer>();
 		this.direction = DirectionEnum.IDLE_DIRECTION;
+		this.hardFaulted = false;
+		this.transientFaulted = false;
 	}
 	
 	/**
@@ -34,6 +38,8 @@ public class SchedulerElevatorData {
 		this.currentFloor = currFloor;
 		this.destinationFloor = destFloor;
 		this.direction = dir;
+		this.hardFaulted = false;
+		this.transientFaulted = false;
 	}
 	
 	/**
@@ -43,6 +49,12 @@ public class SchedulerElevatorData {
 		String toString = String.format("	Current Floor: %d. Direction: %s.\n		Destinations:", currentFloor, direction);
 		for (Integer floor : destinationFloor) {
 			toString += " " + floor;
+		}
+		if(hardFaulted) {
+			toString += "\n Hardfaulted. \n";
+		}
+		if(transientFaulted) {
+			toString += "\n TransientFaulted. \n";
 		}
 		return toString;
 	}
@@ -59,6 +71,14 @@ public class SchedulerElevatorData {
 		return this.direction;
 	}
 	
+	public boolean getHardFaulted() {
+		return this.hardFaulted;
+	}
+	
+	public boolean getTransientFaulted() {
+		return this.transientFaulted;
+	}
+	
 	public void setCurrentFloor(int currFloor) {
 		this.currentFloor = currFloor;
 	}
@@ -69,6 +89,14 @@ public class SchedulerElevatorData {
 	
 	public void setDirection(DirectionEnum dir) {
 		this.direction = dir;
+	}
+	
+	public void setHardFaulted(boolean fault) {
+		this.hardFaulted = fault;
+	}
+	
+	public void setTransientFaulted(boolean fault) {
+		this.transientFaulted = fault;
 	}
 	
 	public void setData(int currFloor, ArrayList<Integer> destFloor, DirectionEnum dir) {
