@@ -145,9 +145,11 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 
 ## Iteration 4 Work Distribution
 ##### Jason Gao
-- Add correct timing between floor requests
-- Floor system now sends fault messages
-- Fixed unit tests (shared)
+- Add correct timing between floor requests (shared)
+- Floor system now sends fault messages (shared)
+- Create hard fault and transient fault messages (shared)
+- Refactor DirectionEnum from hardcoded strings
+- Create new buffer communicator for fault messages
 
 #####  Kevin Quach
 - Implemented scheduler handling multiple elevators (shared)
@@ -161,8 +163,10 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Revised scheduler state machine diagram to reflect iteration
 
 #####  Shashaank Srivastava
-- Implemented UDP messaging (shared)
-- UML class and sequence diagrams
+- Add correct timing between floor requests (shared)
+- Floor system now sends fault messages (shared)
+- Create hard fault and transient fault messages (shared)
+- UML class and sequence diagrams, timing diagrams
   
 #####  Harjap Gill
 - Updated elevator system to handle fault messages
