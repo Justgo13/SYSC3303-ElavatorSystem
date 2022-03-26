@@ -67,6 +67,26 @@ public class ElevatorSystem implements Runnable {
 						e.printStackTrace();
 					}
 					break;
+				
+				case ELEVATOR_TRANSIENT_FAULT:
+					ElevatorTransientFaultMessage transientFaultMessage = (ElevatorTransientFaultMessage) message;
+					elevatorId = transientFaultMessage.getElevatorID();
+					for (Elevator elevator: elevators) {
+						if (elevator.getElevatorId() == elevatorId) {
+							elevator.putFloorRequest(transientFaultMessage);
+						}
+					}
+					break;
+				
+				case ELEVATOR_HARD_FAULT:
+					ElevatorHardFaultMessage hardFaulttMessage = (ElevatorHardFaultMessage) message;
+					elevatorId = hardFaulttMessage.getElevatorID();
+					for (Elevator elevator: elevators) {
+						if (elevator.getElevatorId() == elevatorId) {
+							elevator.putFloorRequest(hardFaulttMessage);
+						}
+					}
+					break;
 	
 				default:
 					System.out.println("Elevator System does not handle messages of type: " + message.getMessageType());
