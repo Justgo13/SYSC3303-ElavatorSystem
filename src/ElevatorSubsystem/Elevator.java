@@ -45,7 +45,6 @@ public class Elevator implements Runnable {
 	private int elevatorId;
 	private int currentFloor;
 	private DirectionEnum direction;
-	private boolean hardFault;
 	private boolean queuedTransientFault;
 	private float transientFaultLength;
 	private boolean completingTransientFault;
@@ -99,7 +98,6 @@ public class Elevator implements Runnable {
 		this.interruptedWhileMoving = false;
 		this.interruptedWhileDoorsOpen = false;
 		this.schedulerBuffer = schedulerBuffer;
-		this.hardFault = false;
 		this.queuedTransientFault = false;
 		this.transientFaultLength = 0;
 		this.completingTransientFault = false;
@@ -255,7 +253,7 @@ public class Elevator implements Runnable {
 	 * @param message
 	 * @return
 	 */
-	public boolean handleMessageFault(Message message) {
+	public boolean isMessageFault(Message message) {
 		if (message == null) {
 			return false;
 	
@@ -265,7 +263,7 @@ public class Elevator implements Runnable {
 			this.transientFaultLength = messageTransient.getTimeOfFault();
 			return true;
 			
-		} else if(message.getMessageType() == MessageTypes.ELEVATOR_TRANSIENT_FAULT) {
+		} else if(message.getMessageType() == MessageTypes.ELEVATOR_HARD_FAULT) {
 			this.currentState = STATES.HARD_FAULT;
 			return true;
 			
@@ -292,7 +290,7 @@ public class Elevator implements Runnable {
 				// Wait until we receive a ServiceFloorRequest
 				Message msg = (Message) getMessageTimed(0, 0);
 				
-				if (handleMessageFault(msg)) {
+				if (isMessageFault(msg)) {
 					break;
 				}
 				
@@ -364,7 +362,7 @@ public class Elevator implements Runnable {
 
 				Message msg = getMessageTimed(timeToTravel, System.currentTimeMillis());
 				
-				if (handleMessageFault(msg)) {
+				if (isMessageFault(msg)) {
 					break;
 				}
 				
@@ -537,7 +535,7 @@ public class Elevator implements Runnable {
 
 				Message msg = getMessageTimed(timeToWait, System.currentTimeMillis());
 
-				if (handleMessageFault(msg)) {
+				if (isMessageFault(msg)) {
 					break;
 				}
 				

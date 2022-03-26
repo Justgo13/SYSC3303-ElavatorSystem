@@ -79,11 +79,11 @@ public class ElevatorSystem implements Runnable {
 					break;
 				
 				case ELEVATOR_HARD_FAULT:
-					ElevatorHardFaultMessage hardFaulttMessage = (ElevatorHardFaultMessage) message;
-					elevatorId = hardFaulttMessage.getElevatorID();
+					ElevatorHardFaultMessage hardFaultMessage = (ElevatorHardFaultMessage) message;
+					elevatorId = hardFaultMessage.getElevatorID();
 					for (Elevator elevator: elevators) {
 						if (elevator.getElevatorId() == elevatorId) {
-							elevator.putFloorRequest(hardFaulttMessage);
+							elevator.putFloorRequest(hardFaultMessage);
 						}
 					}
 					break;
