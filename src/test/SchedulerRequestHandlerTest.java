@@ -45,7 +45,7 @@ class SchedulerRequestHandlerTest {
 	@Test
 	@DisplayName("Chooses the idle elevator at the requesting floor")
 	void testSameFloorIdle() {
-		FloorDataMessage request = new FloorDataMessage(0.0f, 1, "up", 0);
+		FloorDataMessage request = new FloorDataMessage(0.0f, 1, DirectionEnum.UP_DIRECTION, 0);
 		ArrayList<SchedulerElevatorData> elevators = new ArrayList<>();
 		ArrayList<Integer> e1Dest = new ArrayList<>();
 		elevators.add(new SchedulerElevatorData(1, e1Dest, DirectionEnum.IDLE_DIRECTION));
@@ -56,13 +56,13 @@ class SchedulerRequestHandlerTest {
 		
 		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 0);
-		assertEquals(madeRequest.get(0).getDirection(), "down");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.DOWN_DIRECTION);
 	}
 	
 	@Test
 	@DisplayName("Chooses the closest elevator that will travel in the path of the request and meet the requesting floor")
 	void testSameDirectionClosest() {
-		FloorDataMessage request = new FloorDataMessage(0.0f, 4, "up", 6);
+		FloorDataMessage request = new FloorDataMessage(0.0f, 4, DirectionEnum.UP_DIRECTION, 6);
 		ArrayList<SchedulerElevatorData> elevators = new ArrayList<>();
 		ArrayList<Integer> e1Dest = new ArrayList<>();
 		e1Dest.add(15);
@@ -73,9 +73,9 @@ class SchedulerRequestHandlerTest {
 		
 		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 1);
-		assertEquals(madeRequest.get(0).getDirection(), "up");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.UP_DIRECTION);
 		
-		request = new FloorDataMessage(0.0f, 7, "down", 4);
+		request = new FloorDataMessage(0.0f, 7, DirectionEnum.DOWN_DIRECTION, 4);
 		elevators = new ArrayList<>();
 		e1Dest = new ArrayList<>();
 		e1Dest.add(2);
@@ -87,13 +87,13 @@ class SchedulerRequestHandlerTest {
 		
 		madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 1);
-		assertEquals(madeRequest.get(0).getDirection(), "down");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.DOWN_DIRECTION);
 	}
 	
 	@Test
 	@DisplayName("Chooses the closest idle elevator")
 	void testIdleClosest() {
-		FloorDataMessage request = new FloorDataMessage(0.0f, 4, "up", 6);
+		FloorDataMessage request = new FloorDataMessage(0.0f, 4, DirectionEnum.UP_DIRECTION, 6);
 		ArrayList<SchedulerElevatorData> elevators = new ArrayList<>();
 		ArrayList<Integer> e1Dest = new ArrayList<>();
 		e1Dest.add(3);
@@ -103,9 +103,9 @@ class SchedulerRequestHandlerTest {
 		
 		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 1);
-		assertEquals(madeRequest.get(0).getDirection(), "up");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.UP_DIRECTION);
 		
-		request = new FloorDataMessage(0.0f, 7, "down", 4);
+		request = new FloorDataMessage(0.0f, 7, DirectionEnum.DOWN_DIRECTION, 4);
 		elevators = new ArrayList<>();
 		e1Dest = new ArrayList<>();
 		e1Dest.add(9);
@@ -115,13 +115,13 @@ class SchedulerRequestHandlerTest {
 		
 		madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 1);
-		assertEquals(madeRequest.get(0).getDirection(), "down");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.DOWN_DIRECTION);
 	}
 	
 	@Test
 	@DisplayName("Chooses the elevator with the closest final destination to the requesting floor")
 	void testDestinationClosest() {
-		FloorDataMessage request = new FloorDataMessage(0.0f, 4, "up", 6);
+		FloorDataMessage request = new FloorDataMessage(0.0f, 4, DirectionEnum.UP_DIRECTION, 6);
 		ArrayList<SchedulerElevatorData> elevators = new ArrayList<>();
 		ArrayList<Integer> e1Dest = new ArrayList<>();
 		e1Dest.add(6);
@@ -136,9 +136,9 @@ class SchedulerRequestHandlerTest {
 		
 		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 0);
-		assertEquals(madeRequest.get(0).getDirection(), "up");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.UP_DIRECTION);
 		
-		request = new FloorDataMessage(0.0f, 7, "up", 12);
+		request = new FloorDataMessage(0.0f, 7, DirectionEnum.UP_DIRECTION, 12);
 		elevators = new ArrayList<>();
 		e1Dest = new ArrayList<>();
 		e1Dest.add(4);
@@ -153,7 +153,29 @@ class SchedulerRequestHandlerTest {
 		
 		madeRequest = requestHandler.makeRequest(request, elevators);
 		assertEquals(madeRequest.get(0).getElevatorId(), 0);
-		assertEquals(madeRequest.get(0).getDirection(), "up");
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.UP_DIRECTION);
+	}
+	
+	@Test
+	@DisplayName("Chooses the only elevator that has not faulted, despite it being the least optimal")
+	void testFaults() {
+		FloorDataMessage request = new FloorDataMessage(0.0f, 4, DirectionEnum.UP_DIRECTION, 6);
+		ArrayList<SchedulerElevatorData> elevators = new ArrayList<>();
+		ArrayList<Integer> e1Dest = new ArrayList<>();
+		elevators.add(new SchedulerElevatorData(4, e1Dest, DirectionEnum.UP_DIRECTION));
+		elevators.get(0).setHardFaulted(true);
+		ArrayList<Integer> e2Dest = new ArrayList<>();
+		elevators.add(new SchedulerElevatorData(4, e2Dest, DirectionEnum.UP_DIRECTION));
+		elevators.get(1).setTransientFaulted(true);
+		ArrayList<Integer> e3Dest = new ArrayList<>();
+		e2Dest.add(2);
+		e2Dest.add(1);
+		elevators.add(new SchedulerElevatorData(3, e3Dest, DirectionEnum.DOWN_DIRECTION));
+		
+		List<ServiceFloorRequestMessage> madeRequest = requestHandler.makeRequest(request, elevators);
+		assertEquals(madeRequest.size(), 1);
+		assertEquals(madeRequest.get(0).getElevatorId(), 2);
+		assertEquals(madeRequest.get(0).getDirection(), DirectionEnum.UP_DIRECTION);
 	}
 
 }
