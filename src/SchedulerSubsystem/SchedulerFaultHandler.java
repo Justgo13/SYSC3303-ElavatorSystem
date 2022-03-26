@@ -34,9 +34,9 @@ public class SchedulerFaultHandler implements Runnable {
 	public void parseFaultMessage(Message faultMessage) {
 		switch(faultMessage.getMessageType()) {
 		case ELEVATOR_HARD_FAULT:
-			ElevatorHardFaultMessage hfMessage = (ElevatorHardFaultMessage) faultMessage;
-			int elevatorID = hfMessage.getElevatorID();
-			schedulerSystem.hardFaultElevator(elevatorID);	//update state of elevator accordingly
+//			ElevatorHardFaultMessage hfMessage = (ElevatorHardFaultMessage) faultMessage;
+//			int elevatorID = hfMessage.getElevatorID();
+//			schedulerSystem.hardFaultElevator(elevatorID);	//update state of elevator accordingly
 			sendElevatorFaultMessage(faultMessage);			//forward fault message to elevator subsystem
 			break;
 		case ELEVATOR_TRANSIENT_FAULT:

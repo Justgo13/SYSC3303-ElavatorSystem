@@ -280,6 +280,10 @@ public class Elevator implements Runnable {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
 		while (true) {
+			if (Thread.currentThread().isInterrupted()) {
+				break;
+			}
+			
 			// IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED
 			switch (this.currentState) {
 			case IDLE: {
@@ -327,6 +331,7 @@ public class Elevator implements Runnable {
 				AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID, this.getElevatorId(),
 						this.getCurrentFloor(), this.getFloorBuffer());
 				this.putConfirmationMessage(acceptMsg);
+				break;
 			}
 
 			case MOVING: {
@@ -512,7 +517,7 @@ public class Elevator implements Runnable {
 					
 					// Send TransientFault message
 					StartTransientFaultMessage fault = new StartTransientFaultMessage(this.getElevatorId());
-
+					System.out.println("Elevator " + this.elevatorId +" is in transient fault");
 					try {
 						this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(fault));
 					} catch (IOException e) {
@@ -549,6 +554,7 @@ public class Elevator implements Runnable {
 						
 						// Send TransientFault message
 						EndTransientFaultMessage fault = new EndTransientFaultMessage(this.getElevatorId());
+						System.out.println("Elevator " + this.elevatorId +" is no longer in transient fault");
 
 						try {
 							this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(fault));
@@ -610,11 +616,11 @@ public class Elevator implements Runnable {
 									}
 
 									System.out.println("Elevator " + this.elevatorId + " accepted " + srcFloorMessage + " to " + destFloorMessage);
-                  AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID,
+									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID,
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
 								} else {
-                  System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
+									System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
 									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID,
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
@@ -632,11 +638,11 @@ public class Elevator implements Runnable {
 									}
 
 									System.out.println("Elevator " + this.elevatorId + " accepted " + srcFloorMessage + " to " + destFloorMessage);
-                  AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID,
+									AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID,
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
 								} else {
-                  System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
+									System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
 									DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID,
 											this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 									this.putConfirmationMessage(acceptMsg);
@@ -669,6 +675,8 @@ public class Elevator implements Runnable {
 			case HARD_FAULT:
 				// Elevator is dead
 				// :(
+				System.out.println("Elevator " + this.elevatorId + " has received a hard fault");
+				Thread.currentThread().interrupt();
 				break;
 
 			default:

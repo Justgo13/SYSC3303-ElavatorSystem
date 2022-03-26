@@ -10,6 +10,7 @@ import Messages.ServiceFloorRequestMessage;
 import SharedResources.ByteBufferCommunicator;
 import SharedResources.DirectionEnum;
 import SharedResources.SerializeUtils;
+import SharedResources.TimeoutException;
 
 /**
  * @author Kevin Quach
@@ -171,8 +172,15 @@ public class SchedulerRequestHandler implements Runnable {
                     while (!acceptedRequest && i < requestMessages.size()) {
                         System.out.println(requestMessages.get(i));
                         elevatorBufferCommunicator.sendUDPMessage(SerializeUtils.serialize(requestMessages.get(i)));
-                        acceptedRequest = schedulerSystem.getRequestResponse(requestMessages.get(i).getRequestID()); //message ids need to be implemented
-                        //System.out.printf("Request %d handled \n", requestMessage.getRequestID());
+                        // Wait for accept/deny
+                        try {
+                        	acceptedRequest = schedulerSystem.getRequestResponseTimed(requestMessages.get(i).getRequestID(), System.currentTimeMillis()); //message ids need to be implemented
+                        } catch (TimeoutException e) {
+                        	// HARD FAULT THE ELEVATOR
+                        	schedulerSystem.hardFaultElevator(requestMessages.get(i).getElevatorId());
+                        	acceptedRequest = false;
+                        }
+
                         i++;
                     }
                 }
