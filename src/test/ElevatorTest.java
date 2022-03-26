@@ -15,6 +15,7 @@ import Messages.Message;
 import Messages.MessageTypes;
 import Messages.ServiceFloorRequestMessage;
 import SharedResources.ByteBufferCommunicator;
+import SharedResources.DirectionEnum;
 import SharedResources.SerializeUtils;
 
 /**
@@ -26,7 +27,7 @@ class ElevatorTest {
 	private static ByteBufferCommunicator testBufferCommunicator, elevatorBufferCommunicator;
 	private static ElevatorSystem elevatorSystem;
 	
-	public static void sendFloorRequestMessage(int srcFloor, int destFloor, String direction,
+	public static void sendFloorRequestMessage(int srcFloor, int destFloor, DirectionEnum direction,
 			ByteBufferCommunicator buffer, int elevatorId) {
 
 		try {
@@ -93,7 +94,7 @@ class ElevatorTest {
 		Message msg;
 		
 		try {
-			sendFloorRequestMessage(2, 4, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(2, 4, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 			
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
 			Assert.assertEquals(MessageTypes.ACCEPT_FLOOR_REQUEST_MESSAGE, msg.getMessageType());
@@ -101,7 +102,7 @@ class ElevatorTest {
 			Thread.sleep(1000);
 			
 			// SECOND REQUEST, SHOULD BE DECLINED
-			sendFloorRequestMessage(3, 5, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(3, 5, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
 			Assert.assertEquals(MessageTypes.DECLINE_FLOOR_REQUEST_MESSAGE, msg.getMessageType());
 
@@ -125,7 +126,7 @@ class ElevatorTest {
 		Message msg;
 		// Test
 		try {
-			sendFloorRequestMessage(1, 9, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(1, 9, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
@@ -139,14 +140,14 @@ class ElevatorTest {
 			Thread.sleep(13000);
 			// SECOND REQUEST, SHOULD BE DECLINED
 
-			sendFloorRequestMessage(5, 4, "down", testBufferCommunicator, 1);
+			sendFloorRequestMessage(5, 4, DirectionEnum.DOWN_DIRECTION, testBufferCommunicator, 1);
 
 			// Decline msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
 			Assert.assertEquals(MessageTypes.DECLINE_FLOOR_REQUEST_MESSAGE, msg.getMessageType());
 
 			// THIRD REQUEST
-			sendFloorRequestMessage(7, 8, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(7, 8, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
@@ -179,7 +180,7 @@ class ElevatorTest {
 		Message msg;
 		// Test
 		try {
-			sendFloorRequestMessage(1, 6, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(1, 6, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
@@ -194,7 +195,7 @@ class ElevatorTest {
 			Thread.sleep(1000);
 
 			// Send Request
-			sendFloorRequestMessage(5, 4, "down", testBufferCommunicator, 1);
+			sendFloorRequestMessage(5, 4, DirectionEnum.DOWN_DIRECTION, testBufferCommunicator, 1);
 
 			// Decline Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
@@ -203,7 +204,7 @@ class ElevatorTest {
 			Thread.sleep(500);
 
 			// Send Request
-			sendFloorRequestMessage(4, 5, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(4, 5, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
@@ -212,7 +213,7 @@ class ElevatorTest {
 			Thread.sleep(500);
 
 			// Send Request
-			sendFloorRequestMessage(1, 3, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(1, 3, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
@@ -261,14 +262,14 @@ class ElevatorTest {
 		Message msg;
 		// Test
 		try {
-			sendFloorRequestMessage(4, 5, "up", testBufferCommunicator, 1);
+			sendFloorRequestMessage(4, 5, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
 			Assert.assertEquals(MessageTypes.ACCEPT_FLOOR_REQUEST_MESSAGE, msg.getMessageType());
 			Thread.sleep(10);
 
-			sendFloorRequestMessage(6, 5, "down", testBufferCommunicator, 1);
+			sendFloorRequestMessage(6, 5, DirectionEnum.DOWN_DIRECTION, testBufferCommunicator, 1);
 
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
