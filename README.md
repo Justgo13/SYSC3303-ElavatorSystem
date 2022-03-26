@@ -152,15 +152,14 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 - Create new buffer communicator for fault messages
 
 #####  Kevin Quach
-- Implemented scheduler handling multiple elevators (shared)
-- Implemented scheduler handling requests only on elevator state change (shared)
-- Added elevator IDs to messages
-- Revised sequence diagram pertaining to scheduler threads
+- Updated SchedulerRequestHandler to respect faults
+- Added unit tests for faults for Scheduler
+- Updated tests to use DirectionEnum
 
 #####  Michael Quach
-- Implemented scheduler handling multiple elevators (shared)
-- Implemented scheduler handling requests only on elevator state change (shared)
-- Revised scheduler state machine diagram to reflect iteration
+- Added new thread to handle incoming faults
+- Added logic to SchedulerSystem to handle faults
+- Scheduler will handle hard fault timeouts (shared)
 
 #####  Shashaank Srivastava
 - Add correct timing between floor requests (shared)
