@@ -15,6 +15,7 @@ import Messages.DeclineFloorRequestMessage;
 
 import org.junit.jupiter.api.DisplayName;
 
+import SchedulerSubsystem.SchedulerElevatorData;
 import SchedulerSubsystem.SchedulerSystem;
 import SharedResources.ByteBufferCommunicator;
 import SharedResources.TimeoutException;
@@ -64,10 +65,22 @@ class SchedulerSystemTest {
 			e.printStackTrace();
 		}
 		
-		
 		DeclineFloorRequestMessage declineMsg = new DeclineFloorRequestMessage(0, 0, 1, elevatorFloorBuffer);
 		schedulerSystem.updateElevators(declineMsg);
+		
+		new Thread("Cause notify") { //dummy thread just to cause an update and notifyall() after getElevatorData() is stuck waiting since there's no update
+			public void run() {
+				try {
+					Thread.sleep(8000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(-1, 0, -1, elevatorFloorBuffer);
+				schedulerSystem.updateElevators(acceptMsg);
+			}
+		}.start();
 		assertEquals(schedulerSystem.getElevatorData().get(0).getDestinationFloor(), elevatorFloorBuffer);
+		
 		try {
 			assertFalse(schedulerSystem.getRequestResponseTimed(0, System.currentTimeMillis()));
 		} catch (TimeoutException e) {
@@ -105,19 +118,31 @@ class SchedulerSystemTest {
 		DeclineFloorRequestMessage declineMsg = new DeclineFloorRequestMessage(0, 1, 1, elevatorFloorBuffer);
 		schedulerSystem.updateElevators(declineMsg);
 		
+		new Thread("Cause notify") { //dummy thread just to cause an update and notifyall() after getElevatorData() is stuck waiting since there's no update
+			public void run() {
+				try {
+					Thread.sleep(8000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(-1, 0, -1, elevatorFloorBuffer);
+				schedulerSystem.updateElevators(acceptMsg);
+			}
+		}.start();
 		assertEquals(schedulerSystem.getElevatorData().get(1).getDestinationFloor(), elevatorFloorBuffer);
+		
 		try {
 			assertFalse(schedulerSystem.getRequestResponseTimed(0, System.currentTimeMillis()));
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		ArrayList<Integer> emptyBuffer = new ArrayList<>();
 		ArrivalElevatorMessage arrivalMsg = new ArrivalElevatorMessage(1, 4, emptyBuffer);
 		schedulerSystem.updateElevators(arrivalMsg);
-		
-		assertEquals(schedulerSystem.getElevatorData().get(1).getDestinationFloor(), emptyBuffer);
-		assertEquals(schedulerSystem.getElevatorData().get(1).getCurrentFloor(), 4);
+
+		SchedulerElevatorData data = schedulerSystem.getElevatorData().get(1);
+		assertEquals(data.getDestinationFloor(), emptyBuffer);
+		assertEquals(data.getCurrentFloor(), 4);
 	}
 }
