@@ -17,6 +17,7 @@ import org.junit.jupiter.api.DisplayName;
 
 import SchedulerSubsystem.SchedulerSystem;
 import SharedResources.ByteBufferCommunicator;
+import SharedResources.TimeoutException;
 
 /**
  * @author Kevin Quach and Shashaank Srivastava
@@ -56,14 +57,23 @@ class SchedulerSystemTest {
 		schedulerSystem.updateElevators(acceptMsg);
 		
 		assertEquals(schedulerSystem.getElevatorData().get(0).getDestinationFloor(), elevatorFloorBuffer);
-		assertTrue(schedulerSystem.getRequestResponse(0));
+		try {
+			assertTrue(schedulerSystem.getRequestResponseTimed(0, System.currentTimeMillis()));
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		DeclineFloorRequestMessage declineMsg = new DeclineFloorRequestMessage(0, 0, 1, elevatorFloorBuffer);
 		schedulerSystem.updateElevators(declineMsg);
-		
 		assertEquals(schedulerSystem.getElevatorData().get(0).getDestinationFloor(), elevatorFloorBuffer);
-		assertFalse(schedulerSystem.getRequestResponse(0));
+		try {
+			assertFalse(schedulerSystem.getRequestResponseTimed(0, System.currentTimeMillis()));
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		
 		ArrayList<Integer> emptyBuffer = new ArrayList<>();
@@ -83,18 +93,26 @@ class SchedulerSystemTest {
 		elevatorFloorBuffer.add(4);
 		AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(0, 1, 1, elevatorFloorBuffer);
 		schedulerSystem.updateElevators(acceptMsg);
-		
+
 		assertEquals(schedulerSystem.getElevatorData().get(1).getDestinationFloor(), elevatorFloorBuffer);
-		assertTrue(schedulerSystem.getRequestResponse(0));
-		
+		try {
+			assertTrue(schedulerSystem.getRequestResponseTimed(0, System.currentTimeMillis()));
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		DeclineFloorRequestMessage declineMsg = new DeclineFloorRequestMessage(0, 1, 1, elevatorFloorBuffer);
 		schedulerSystem.updateElevators(declineMsg);
 		
 		assertEquals(schedulerSystem.getElevatorData().get(1).getDestinationFloor(), elevatorFloorBuffer);
-		assertFalse(schedulerSystem.getRequestResponse(0));
-		
-		
+		try {
+			assertFalse(schedulerSystem.getRequestResponseTimed(0, System.currentTimeMillis()));
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		ArrayList<Integer> emptyBuffer = new ArrayList<>();
 		ArrivalElevatorMessage arrivalMsg = new ArrivalElevatorMessage(1, 4, emptyBuffer);
 		schedulerSystem.updateElevators(arrivalMsg);
