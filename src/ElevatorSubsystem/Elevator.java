@@ -35,7 +35,7 @@ public class Elevator implements Runnable {
 
 	/** Different states elevator can be in */
 	private static enum STATES {
-		IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED
+		IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED, HARD_FAULT
 	};
 
 	private ByteBufferCommunicator schedulerBuffer;
@@ -45,6 +45,9 @@ public class Elevator implements Runnable {
 	private int elevatorId;
 	private int currentFloor;
 	private DirectionEnum direction;
+	private boolean queuedTransientFault;
+	private float transientFaultLength;
+	private boolean completingTransientFault;
 
 	/**
 	 * Time stamp from when elevator first starts moving
@@ -64,7 +67,7 @@ public class Elevator implements Runnable {
 	/**
 	 * The buffer holding floor requests from the elevator system
 	 */
-	private Queue<Message> floorRequestBuffer;
+	private Queue<Message> messageRequestBuffer;
 
 	/**
 	 * Buffer holding messages sent by elevator to elevator system
@@ -86,7 +89,7 @@ public class Elevator implements Runnable {
 		this.elevatorId = id;
 		this.doorOpen = doorOpen;
 		this.floorBuffer = new ArrayList<>();
-		this.floorRequestBuffer = new LinkedList<>();
+		this.messageRequestBuffer = new LinkedList<>();
 		this.elevatorResponseBuffer = new ArrayList<>();
 		this.currentState = STATES.IDLE; // TODO might need to pass state in
 		this.direction = null;
@@ -95,6 +98,9 @@ public class Elevator implements Runnable {
 		this.interruptedWhileMoving = false;
 		this.interruptedWhileDoorsOpen = false;
 		this.schedulerBuffer = schedulerBuffer;
+		this.queuedTransientFault = false;
+		this.transientFaultLength = 0;
+		this.completingTransientFault = false;
 	}
 
 	/**
@@ -103,7 +109,7 @@ public class Elevator implements Runnable {
 	 * @param msg The message the elevator system sends
 	 */
 	public synchronized void putFloorRequest(Message msg) {
-		this.floorRequestBuffer.add(msg);
+		this.messageRequestBuffer.add(msg);
 		notifyAll();
 	}
 
@@ -146,8 +152,8 @@ public class Elevator implements Runnable {
 	 * @return null if timeout reached or returns Message if message was received
 	 *         during wait
 	 */
-	private synchronized Message getFloorRequestTimed(long timeToTravel, long departureTime) {
-		while (this.floorRequestBuffer.isEmpty()) {
+	private synchronized Message getMessageTimed(long timeToTravel, long departureTime) {
+		while (this.messageRequestBuffer.isEmpty()) {
 			try {
 				// If the amount of time so far that has passed exceeds timeToTravel, we throw
 				// TimeoutException
@@ -164,7 +170,7 @@ public class Elevator implements Runnable {
 			}
 		}
 		notifyAll();
-		return this.floorRequestBuffer.remove();
+		return this.messageRequestBuffer.remove();
 	}
 
 	/**
@@ -239,6 +245,32 @@ public class Elevator implements Runnable {
 	public void setCurrentFloor(int currentFloor) {
 		this.currentFloor = currentFloor;
 	}
+	
+	/**
+	 * Message to determine if a message is a fault message. If it is a fault message, the
+	 * appropriate action is take and return true.
+	 * 
+	 * @param message
+	 * @return
+	 */
+	public boolean isMessageFault(Message message) {
+		if (message == null) {
+			return false;
+	
+		} else if(message.getMessageType() == MessageTypes.ELEVATOR_TRANSIENT_FAULT) {
+			ElevatorTransientFaultMessage messageTransient = (ElevatorTransientFaultMessage) message;
+			this.queuedTransientFault = true;
+			this.transientFaultLength = messageTransient.getTimeOfFault();
+			return true;
+			
+		} else if(message.getMessageType() == MessageTypes.ELEVATOR_HARD_FAULT) {
+			this.currentState = STATES.HARD_FAULT;
+			return true;
+			
+		} else {
+			return false;
+		}
+	}
 
 	/**
 	 * Loops through all the different states of the Elevator
@@ -256,11 +288,16 @@ public class Elevator implements Runnable {
 				this.interruptedWhileMoving = false;
 
 				// Wait until we receive a ServiceFloorRequest
-				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequestTimed(0, 0);
-
-				int srcFloor = msg.getFloorNumber();
-				int destFloor = msg.getDestinationNumber();
-				int msgID = msg.getRequestID();
+				Message msg = (Message) getMessageTimed(0, 0);
+				
+				if (isMessageFault(msg)) {
+					break;
+				}
+				
+				ServiceFloorRequestMessage message = (ServiceFloorRequestMessage) msg;
+				int srcFloor = message.getFloorNumber();
+				int destFloor = message.getDestinationNumber();
+				int msgID = message.getRequestID();
 
 				if (srcFloor == this.currentFloor) {
 					// If the requested floor is the same as current floor, go directly to DoorOpen
@@ -290,8 +327,6 @@ public class Elevator implements Runnable {
 				AcceptFloorRequestMessage acceptMsg = new AcceptFloorRequestMessage(msgID, this.getElevatorId(),
 						this.getCurrentFloor(), this.getFloorBuffer());
 				this.putConfirmationMessage(acceptMsg);
-
-				break;
 			}
 
 			case MOVING: {
@@ -325,10 +360,14 @@ public class Elevator implements Runnable {
 					}
 				}
 
-				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequestTimed(timeToTravel,
-						System.currentTimeMillis());
-
-				if (msg == null) {
+				Message msg = getMessageTimed(timeToTravel, System.currentTimeMillis());
+				
+				if (isMessageFault(msg)) {
+					break;
+				}
+				
+				ServiceFloorRequestMessage message = (ServiceFloorRequestMessage) msg;
+				if (message == null) {
 					// We have reached our destination floor and will now stop
 					this.currentState = STATES.STOPPED;
 					break;
@@ -337,10 +376,10 @@ public class Elevator implements Runnable {
 					// elevator
 					this.interruptedWhileMoving = true;
 
-					int srcFloorMessage = msg.getFloorNumber();
-					int destFloorMessage = msg.getDestinationNumber();
-					DirectionEnum directionMessage = msg.getDirection();
-					int msgID = msg.getRequestID();
+					int srcFloorMessage = message.getFloorNumber();
+					int destFloorMessage = message.getDestinationNumber();
+					DirectionEnum directionMessage = message.getDirection();
+					int msgID = message.getRequestID();
 
 					// still moving
 					/**
@@ -391,7 +430,7 @@ public class Elevator implements Runnable {
 							// Service request if both request floors are between our currentFloor and our
 							// destination floor
 							if (srcFloorMessage > currFloor && destFloorMessage <= destFloor) {
-                System.out.println("Elevator " + this.elevatorId + " accepted " + srcFloorMessage + " to " + destFloorMessage);
+								System.out.println("Elevator " + this.elevatorId + " accepted " + srcFloorMessage + " to " + destFloorMessage);
 								this.addToFloorBufferHead(destFloorMessage);
 								this.addToFloorBufferHead(srcFloorMessage);
 
@@ -399,7 +438,7 @@ public class Elevator implements Runnable {
 										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							} else {
-                System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
+								System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
 								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID,
 										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
@@ -410,7 +449,7 @@ public class Elevator implements Runnable {
 							// Service request if both request floors are between our currentFloor and our
 							// destination floor
 							if (srcFloorMessage < currFloor && destFloorMessage >= destFloor) {
-                System.out.println("Elevator " + this.elevatorId + " accepted " + srcFloorMessage + " to " + destFloorMessage);
+								System.out.println("Elevator " + this.elevatorId + " accepted " + srcFloorMessage + " to " + destFloorMessage);
 								this.addToFloorBufferHead(destFloorMessage);
 								this.addToFloorBufferHead(srcFloorMessage);
 
@@ -418,7 +457,7 @@ public class Elevator implements Runnable {
 										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
 							} else {
-                System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
+								System.out.println("Elevator " + this.elevatorId + " declined " + srcFloorMessage + " to " + destFloorMessage);
 								DeclineFloorRequestMessage acceptMsg = new DeclineFloorRequestMessage(msgID,
 										this.getElevatorId(), this.getCurrentFloor(), this.getFloorBuffer());
 								this.putConfirmationMessage(acceptMsg);
@@ -465,6 +504,23 @@ public class Elevator implements Runnable {
 				}
 
 				long timeToWait = (long) TIME_DOORS_OPEN_MS;
+				if (queuedTransientFault) {
+					timeToWait += transientFaultLength;
+					completingTransientFault = true;
+					queuedTransientFault = false;
+					transientFaultLength = 0;
+					
+					// Send TransientFault message
+					StartTransientFaultMessage fault = new StartTransientFaultMessage(this.getElevatorId());
+
+					try {
+						this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(fault));
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+				
 
 				// If we were in the DoorOpen state last state, reduce timeToWait by amount of
 				// time we already waited
@@ -477,12 +533,29 @@ public class Elevator implements Runnable {
 					}
 				}
 
-				ServiceFloorRequestMessage msg = (ServiceFloorRequestMessage) getFloorRequestTimed(timeToWait,
-						System.currentTimeMillis());
+				Message msg = getMessageTimed(timeToWait, System.currentTimeMillis());
 
-				if (msg == null) {
+				if (isMessageFault(msg)) {
+					break;
+				}
+				
+				ServiceFloorRequestMessage message = (ServiceFloorRequestMessage) msg;
+				if (message == null) {
 					// We waited with doors open for the set time and doors will now close
 					this.currentState = STATES.DOORS_CLOSED;
+					
+					if (completingTransientFault) {
+						completingTransientFault = false;
+						
+						// Send TransientFault message
+						EndTransientFaultMessage fault = new EndTransientFaultMessage(this.getElevatorId());
+
+						try {
+							this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(fault));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
 					break;
 				} else {
 					// We received a message while we were waiting with doors open
@@ -490,10 +563,10 @@ public class Elevator implements Runnable {
 					// Set flag indicating we were interrupted while waiting with doors open
 					this.interruptedWhileDoorsOpen = true;
 
-					int srcFloorMessage = msg.getFloorNumber();
-					int destFloorMessage = msg.getDestinationNumber();
-					DirectionEnum directionMessage = msg.getDirection();
-					int msgID = msg.getRequestID();
+					int srcFloorMessage = message.getFloorNumber();
+					int destFloorMessage = message.getDestinationNumber();
+					DirectionEnum directionMessage = message.getDirection();
+					int msgID = message.getRequestID();
 
 					// If we have no scheduled floors, then we will always accept floor request
 					if (this.floorBuffer.isEmpty()) {
@@ -591,6 +664,11 @@ public class Elevator implements Runnable {
 					// If we have a floor to service next, move to Moving state
 					this.currentState = STATES.MOVING;
 				}
+				break;
+				
+			case HARD_FAULT:
+				// Elevator is dead
+				// :(
 				break;
 
 			default:
