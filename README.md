@@ -141,3 +141,29 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 #####  Harjap Gill
 - Implemented UDP messaging (shared)
 - Fixed unit tests (shared)
+
+
+## Iteration 4 Work Distribution
+##### Jason Gao
+- Add correct timing between floor requests
+- Floor system now sends fault messages
+- Fixed unit tests (shared)
+
+#####  Kevin Quach
+- Implemented scheduler handling multiple elevators (shared)
+- Implemented scheduler handling requests only on elevator state change (shared)
+- Added elevator IDs to messages
+- Revised sequence diagram pertaining to scheduler threads
+
+#####  Michael Quach
+- Implemented scheduler handling multiple elevators (shared)
+- Implemented scheduler handling requests only on elevator state change (shared)
+- Revised scheduler state machine diagram to reflect iteration
+
+#####  Shashaank Srivastava
+- Implemented UDP messaging (shared)
+- UML class and sequence diagrams
+  
+#####  Harjap Gill
+- Updated elevator system to handle fault messages
+- Scheduler will handle hard fault timeouts (shared)
