@@ -9,7 +9,7 @@ import ElevatorSubsystem.ElevatorSystem;
 import FloorSubsystem.FloorResponseHandler;
 import FloorSubsystem.FloorSystem;
 import Messages.*;
-import SharedResources.ByteBufferCommunicator;
+import SharedResources.*;
 
 /**
  * @author Michael Quach, Kevin Quach
@@ -22,8 +22,8 @@ import SharedResources.ByteBufferCommunicator;
  *
  */
 public class SchedulerSystem {
+	private static final long HARD_FAULT_TIMEOUT_DURATION = 7000;
 	private ByteBufferCommunicator elevatorBufferCommunicator;
-	private ByteBufferCommunicator floorBufferCommunicator;
 	private ArrayList<SchedulerElevatorData> elevatorData;
 	private Map<Integer, Boolean> requestResponses;
 	private boolean elevatorsStateChanged;
@@ -39,7 +39,6 @@ public class SchedulerSystem {
 	public SchedulerSystem(ByteBufferCommunicator elevatorBufComm, ByteBufferCommunicator floorBufComm,
 			int numElevators) {
 		this.elevatorBufferCommunicator = elevatorBufComm;
-		this.floorBufferCommunicator = floorBufComm;
 		this.elevatorData = new ArrayList<SchedulerElevatorData>();
 		this.requestResponses = new HashMap<>();
 		addElevators(numElevators);
@@ -63,7 +62,7 @@ public class SchedulerSystem {
 	 */
 	public void printElevatorState() {
 		for (int i = 0; i < this.elevatorData.size(); i++) {
-			System.out.println("Elevator " + (i + 1) + ": \n" + this.elevatorData.get(i));
+			System.out.println("Elevator " + i + ": \n" + this.elevatorData.get(i));
 		}
 	}
 
@@ -96,11 +95,13 @@ public class SchedulerSystem {
 			StartTransientFaultMessage startTransientFaultMsg = (StartTransientFaultMessage) updateMessage;
 			elevatorData.get(startTransientFaultMsg.getElevatorID()).setTransientFaulted(true);
 			this.elevatorsStateChanged = true;
+			printElevatorState();
 			break;
 		case END_TRANSIENT_FAULT:
-			StartTransientFaultMessage endTransientFaultMsg = (StartTransientFaultMessage) updateMessage;
+			EndTransientFaultMessage endTransientFaultMsg = (EndTransientFaultMessage) updateMessage;
 			elevatorData.get(endTransientFaultMsg.getElevatorID()).setTransientFaulted(false);
 			this.elevatorsStateChanged = true;
+			printElevatorState();
 			break;
 		default:
 			System.out.println("Unexpected message type.");
@@ -115,9 +116,10 @@ public class SchedulerSystem {
 	 * @param elevatorID - elevator that should be shut down due to hard fault
 	 */
 	public synchronized void hardFaultElevator(int elevatorID) {
+		System.out.println("Scheduler System has hard faulted elevator " + elevatorID);
 		elevatorData.get(elevatorID).setHardFaulted(true);
 		this.elevatorsStateChanged = true;
-		//printElevatorState();
+		printElevatorState();
 		notifyAll();
 	}
 
@@ -147,12 +149,19 @@ public class SchedulerSystem {
 	 * request) according to requestID
 	 * 
 	 * @param requestID - ID of service request message and corresponding elevator response
+	 * @param messageSentTime - time at which the request was initially sent
+	 * @throws TimeoutException thrown if we have waited past the hard fault timeout
 	 * @return boolean corresponding to elevator response to service request
 	 */
-	public synchronized boolean getRequestResponse(int requestID) {
+	public synchronized boolean getRequestResponseTimed(int requestID, long messageSentTime) throws TimeoutException {
 		while (requestResponses.get(requestID) == null) {
 			try {
-				wait();
+				long timeWaited = System.currentTimeMillis() - messageSentTime;
+				if(timeWaited >= HARD_FAULT_TIMEOUT_DURATION) {
+					throw new TimeoutException();
+				} else {
+					wait(HARD_FAULT_TIMEOUT_DURATION - timeWaited);
+				}
 			} catch (InterruptedException e) {
 				System.out.println("error moment");
 				return false;
@@ -162,7 +171,7 @@ public class SchedulerSystem {
 		boolean response = requestResponses.get(requestID);
 		requestResponses.remove(requestID);
 		return response;
-	}
+	} 
 
 	/**
 	 * Start the floor, elevator, and scheduler subsystems.
@@ -181,41 +190,41 @@ public class SchedulerSystem {
 	 */
 	public static void main(String[] args) {
 		// floor
-		int sendPort = FloorSystem.FLOOR_SEND_PORT;
-		int receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
-		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		sendPort = FloorSystem.FAULT_SEND_PORT;
-		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
-		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
-		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
-		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
-		new Thread(floorBufferCommunicator).start();
-		new Thread(faultBufferCommunicator).start();
-
-		floorSystemThread.start();
-		floorResponseHandler.start();
+//		int sendPort = FloorSystem.FLOOR_SEND_PORT;
+//		int receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
+//		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+//		sendPort = FloorSystem.FAULT_SEND_PORT;
+//		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
+//		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+//		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
+//		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
+//		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
+//		new Thread(floorBufferCommunicator).start();
+//		new Thread(faultBufferCommunicator).start();
+//
+//		floorSystemThread.start();
+//		floorResponseHandler.start();
 
 		// elevator
-		sendPort = ElevatorSystem.SEND_PORT;
-		receivePort = ElevatorSystem.RECEIVE_PORT;
-		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
-		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
-		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
-		new Thread(elevatorBufferCommunicator).start();
-
-		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
-		elevators.add(elevator1);
-		elevators.add(elevator2);
-		elevators.add(elevator3);
-
-		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
-		elevatorSystem.start();
+//		sendPort = ElevatorSystem.SEND_PORT;
+//		receivePort = ElevatorSystem.RECEIVE_PORT;
+//		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+//		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
+//		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
+//		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
+//		new Thread(elevatorBufferCommunicator).start();
+//
+//		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
+//		elevators.add(elevator1);
+//		elevators.add(elevator2);
+//		elevators.add(elevator3);
+//
+//		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
+//		elevatorSystem.start();
 
 		// scheduler <-> floor (thread 1)
-		sendPort = FloorSystem.FLOOR_RECEIVE_PORT;
-		receivePort = FloorSystem.FLOOR_SEND_PORT;
+		int sendPort = FloorSystem.FLOOR_RECEIVE_PORT;
+		int receivePort = FloorSystem.FLOOR_SEND_PORT;
 		ByteBufferCommunicator floorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
 
 		// scheduler <-> elevator (thread 2)

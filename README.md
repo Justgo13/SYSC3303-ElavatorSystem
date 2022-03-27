@@ -14,9 +14,13 @@ Open Eclipse
 File -> Import -> General -> Projects from Folder or Archive -> Select iteration archive -> Select nested folder <em>SYSC3303_ElevatorSystem</em> -> Finish
 
 ## How to run (production)
-Open a terminal and run 
+Open three terminals and run 
 
-``java -jar Scheduler.jar``
+``
+java -jar Scheduler.jar
+java -jar Elevator.jar
+java -jar Floor.jar
+``
 
 ## How to run (local)
 Open the project in eclipse -> Open SchedulerSystem.java -> Run As -> Java Application
@@ -141,3 +145,32 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 #####  Harjap Gill
 - Implemented UDP messaging (shared)
 - Fixed unit tests (shared)
+
+
+## Iteration 4 Work Distribution
+##### Jason Gao
+- Add correct timing between floor requests (shared)
+- Floor system now sends fault messages (shared)
+- Create hard fault and transient fault messages (shared)
+- Refactor DirectionEnum from hardcoded strings
+- Create new buffer communicator for fault messages
+
+#####  Kevin Quach
+- Updated SchedulerRequestHandler to respect faults
+- Added unit tests for faults for Scheduler
+- Updated tests to use DirectionEnum
+
+#####  Michael Quach
+- Added new thread to handle incoming faults
+- Added logic to SchedulerSystem to handle faults
+- Scheduler will handle hard fault timeouts (shared)
+
+#####  Shashaank Srivastava
+- Add correct timing between floor requests (shared)
+- Floor system now sends fault messages (shared)
+- Create hard fault and transient fault messages (shared)
+- UML class and sequence diagrams, timing diagrams
+  
+#####  Harjap Gill
+- Updated elevator system to handle fault messages
+- Scheduler will handle hard fault timeouts (shared)

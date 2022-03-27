@@ -55,10 +55,15 @@ public class ElevatorSystem implements Runnable {
 			switch (message.getMessageType()) {
 			
 				case SERVICE_FLOOR_REQUEST_MESSAGE:
+					
 					// If Message is ServiceFloorRequest, send the request to the corresponding elevator and wait for its response
 					ServiceFloorRequestMessage serviceFloorRequestMessage = (ServiceFloorRequestMessage) message;
 					Integer elevatorId = serviceFloorRequestMessage.getElevatorId();
 					Message confirmationMessage = createConfirmationMessage(elevatorId, serviceFloorRequestMessage);
+					
+					if (confirmationMessage == null) {
+						break;
+					}
 					
 					try {
 						// Send the elevator's response back to the scheduler
@@ -84,6 +89,7 @@ public class ElevatorSystem implements Runnable {
 					for (Elevator elevator: elevators) {
 						if (elevator.getElevatorId() == elevatorId) {
 							elevator.putFloorRequest(hardFaultMessage);
+							elevators.remove(elevator);
 						}
 					}
 					break;
@@ -115,21 +121,21 @@ public class ElevatorSystem implements Runnable {
 		return msg;
 	}
 	public static void main(String[] args) {
-//		int sendPort = 69;
-//		int receivePort =  70;
-//		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-//		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
-//		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
-//		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
-//		new Thread(elevatorBufferCommunicator).start();
-//	     
-//     	ArrayList<Elevator> elevators = new ArrayList<Elevator>();
-//     	elevators.add(elevator1);  
-//     	elevators.add(elevator2);  
-//     	elevators.add(elevator3);      
-//      
-//     	Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
-//     	elevatorSystem.start();		
+		int sendPort = ElevatorSystem.SEND_PORT;
+		int receivePort = ElevatorSystem.RECEIVE_PORT;
+		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
+		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
+		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
+		new Thread(elevatorBufferCommunicator).start();
+
+		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
+		elevators.add(elevator1);
+		elevators.add(elevator2);
+		elevators.add(elevator3);
+
+		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
+		elevatorSystem.start();
      	
 	}
 }
