@@ -14,9 +14,13 @@ Open Eclipse
 File -> Import -> General -> Projects from Folder or Archive -> Select iteration archive -> Select nested folder <em>SYSC3303_ElevatorSystem</em> -> Finish
 
 ## How to run (production)
-Open a terminal and run 
+Open three terminals and run 
 
-``java -jar Scheduler.jar``
+``
+java -jar Scheduler.jar
+java -jar Elevator.jar
+java -jar Floor.jar
+``
 
 ## How to run (local)
 Open the project in eclipse -> Open SchedulerSystem.java -> Run As -> Java Application
