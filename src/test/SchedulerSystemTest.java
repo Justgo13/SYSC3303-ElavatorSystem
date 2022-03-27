@@ -50,6 +50,13 @@ class SchedulerSystemTest {
 	}
 	
 	@Test
+	@DisplayName("Hard fault an elevator")
+	void testHardFaultElevator() {
+		schedulerSystem.hardFaultElevator(0);
+		assertTrue(schedulerSystem.getElevatorData().get(0).getHardFaulted());
+	}
+	
+	@Test
 	@DisplayName("Update the state with all the different message types")
 	void testUpdateElevators() {
 		ArrayList<Integer> elevatorFloorBuffer = new ArrayList<>();
@@ -93,8 +100,9 @@ class SchedulerSystemTest {
 		ArrivalElevatorMessage arrivalMsg = new ArrivalElevatorMessage(0, 4, emptyBuffer);
 		schedulerSystem.updateElevators(arrivalMsg);
 		
-		assertEquals(schedulerSystem.getElevatorData().get(0).getDestinationFloor(), emptyBuffer);
-		assertEquals(schedulerSystem.getElevatorData().get(0).getCurrentFloor(), 4);
+		SchedulerElevatorData data = schedulerSystem.getElevatorData().get(0);
+		assertEquals(data.getDestinationFloor(), emptyBuffer);
+		assertEquals(data.getCurrentFloor(), 4);
 	}
 	
 	@Test
