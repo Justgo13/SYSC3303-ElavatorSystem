@@ -16,11 +16,11 @@ File -> Import -> General -> Projects from Folder or Archive -> Select iteration
 ## How to run (production)
 Open three terminals and run 
 
-``
+```
 java -jar Scheduler.jar
 java -jar Elevator.jar
 java -jar Floor.jar
-``
+```
 
 ## How to run (local)
 Open the project in eclipse -> Open SchedulerSystem.java -> Run As -> Java Application
