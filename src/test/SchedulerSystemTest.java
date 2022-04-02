@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import Messages.AcceptFloorRequestMessage;
 import Messages.ArrivalElevatorMessage;
 import Messages.DeclineFloorRequestMessage;
+import Messages.EndTransientFaultMessage;
+import Messages.StartTransientFaultMessage;
 
 import org.junit.jupiter.api.DisplayName;
 
@@ -103,6 +103,18 @@ class SchedulerSystemTest {
 		SchedulerElevatorData data = schedulerSystem.getElevatorData().get(0);
 		assertEquals(data.getDestinationFloor(), emptyBuffer);
 		assertEquals(data.getCurrentFloor(), 4);
+		
+		StartTransientFaultMessage startTransientMsg = new StartTransientFaultMessage(0);
+		schedulerSystem.updateElevators(startTransientMsg);
+		
+		data = schedulerSystem.getElevatorData().get(0);
+		assertTrue(data.getTransientFaulted());
+		
+		EndTransientFaultMessage endTransientMsg = new EndTransientFaultMessage(0);
+		schedulerSystem.updateElevators(endTransientMsg);
+		
+		data = schedulerSystem.getElevatorData().get(0);
+		assertFalse(data.getTransientFaulted());
 	}
 	
 	@Test
@@ -152,5 +164,17 @@ class SchedulerSystemTest {
 		SchedulerElevatorData data = schedulerSystem.getElevatorData().get(1);
 		assertEquals(data.getDestinationFloor(), emptyBuffer);
 		assertEquals(data.getCurrentFloor(), 4);
+		
+		StartTransientFaultMessage startTransientMsg = new StartTransientFaultMessage(1);
+		schedulerSystem.updateElevators(startTransientMsg);
+		
+		data = schedulerSystem.getElevatorData().get(1);
+		assertTrue(data.getTransientFaulted());
+		
+		EndTransientFaultMessage endTransientMsg = new EndTransientFaultMessage(1);
+		schedulerSystem.updateElevators(endTransientMsg);
+		
+		data = schedulerSystem.getElevatorData().get(1);
+		assertFalse(data.getTransientFaulted());
 	}
 }
