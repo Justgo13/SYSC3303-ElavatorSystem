@@ -70,11 +70,8 @@ public class Elevator implements Runnable {
 	 */
 	private ArrayList<Message> elevatorResponseBuffer;
 
-	/**
-	 * Current state of the elevator
-	 */
-	
 	private boolean reachedDestination;
+
 	private ElevatorStates currentState;
 	
 	private ElevatorFrame elevatorFrame;
@@ -170,6 +167,7 @@ public class Elevator implements Runnable {
 				// This exception is throw when wait() time has exceeded timeToTravel
 				notifyAll();
 				if (isMovingState) {
+					System.out.println("CURR FLOOR" + this.currentFloor);
 					this.currentFloor = this.direction == DirectionEnum.UP_DIRECTION ? this.currentFloor + 1 : this.currentFloor -1;
 					this.elevatorFrame.setCurrentFloor(this.elevatorId, this.currentFloor);
 				}
@@ -386,10 +384,10 @@ public class Elevator implements Runnable {
 				ServiceFloorRequestMessage message = (ServiceFloorRequestMessage) msg;
 				if (message == null) {
 					if (this.currentFloor != destFloor) {
-						this.currentState = STATES.INTERMEDIATE_FLOOR;
+						this.currentState = ElevatorStates.INTERMEDIATE_FLOOR;
 					} else {
 						// We have reached our destination floor and will now stop
-						this.currentState = STATES.STOPPED;
+						this.currentState = ElevatorStates.STOPPED;
 					}
 					break;
 				} else {
@@ -502,7 +500,7 @@ public class Elevator implements Runnable {
 						+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
 						+ formatter.format(new Date(System.currentTimeMillis())));
 				
-				this.currentState = STATES.DOORS_OPEN;
+				this.currentState = ElevatorStates.DOORS_OPEN;
 
 
 				// Send an Arrival message to notify that we have reached a floor
@@ -707,7 +705,7 @@ public class Elevator implements Runnable {
 				
 			case INTERMEDIATE_FLOOR:
 				System.out.println("Elevator " + this.elevatorId + " has passed floor " + this.currentFloor);
-				this.currentState = STATES.MOVING;
+				this.currentState = ElevatorStates.MOVING;
 				break;
 
 			default:
