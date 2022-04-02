@@ -8,6 +8,7 @@ import ElevatorSubsystem.Elevator;
 import ElevatorSubsystem.ElevatorSystem;
 import FloorSubsystem.FloorResponseHandler;
 import FloorSubsystem.FloorSystem;
+import GUI.ElevatorFrame;
 import Messages.*;
 import SharedResources.*;
 
@@ -190,41 +191,42 @@ public class SchedulerSystem {
 	 */
 	public static void main(String[] args) {
 		// floor
-//		int sendPort = FloorSystem.FLOOR_SEND_PORT;
-//		int receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
-//		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-//		sendPort = FloorSystem.FAULT_SEND_PORT;
-//		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
-//		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-//		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
-//		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
-//		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
-//		new Thread(floorBufferCommunicator).start();
-//		new Thread(faultBufferCommunicator).start();
-//
-//		floorSystemThread.start();
-//		floorResponseHandler.start();
+		int sendPort = FloorSystem.FLOOR_SEND_PORT;
+		int receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
+		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		sendPort = FloorSystem.FAULT_SEND_PORT;
+		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
+		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
+		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
+		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
+		new Thread(floorBufferCommunicator).start();
+		new Thread(faultBufferCommunicator).start();
+
+		floorSystemThread.start();
+		floorResponseHandler.start();
 
 		// elevator
-//		sendPort = ElevatorSystem.SEND_PORT;
-//		receivePort = ElevatorSystem.RECEIVE_PORT;
-//		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-//		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
-//		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
-//		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
-//		new Thread(elevatorBufferCommunicator).start();
-//
-//		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
-//		elevators.add(elevator1);
-//		elevators.add(elevator2);
-//		elevators.add(elevator3);
-//
-//		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
-//		elevatorSystem.start();
+		ElevatorFrame elevatorFrame = new ElevatorFrame();
+		sendPort = ElevatorSystem.SEND_PORT;
+		receivePort = ElevatorSystem.RECEIVE_PORT;
+		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1, elevatorFrame);
+		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1, elevatorFrame);
+		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1, elevatorFrame);
+		new Thread(elevatorBufferCommunicator).start();
+
+		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
+		elevators.add(elevator1);
+		elevators.add(elevator2);
+		elevators.add(elevator3);
+		
+		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
+		elevatorSystem.start();
 
 		// scheduler <-> floor (thread 1)
-		int sendPort = FloorSystem.FLOOR_RECEIVE_PORT;
-		int receivePort = FloorSystem.FLOOR_SEND_PORT;
+		sendPort = FloorSystem.FLOOR_RECEIVE_PORT;
+		receivePort = FloorSystem.FLOOR_SEND_PORT;
 		ByteBufferCommunicator floorBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
 
 		// scheduler <-> elevator (thread 2)
@@ -236,7 +238,7 @@ public class SchedulerSystem {
 		sendPort = FloorSystem.FAULT_RECEIVE_PORT;
 		receivePort = FloorSystem.FAULT_SEND_PORT;
 		ByteBufferCommunicator faultBufferCommunicator2 = new ByteBufferCommunicator(sendPort, receivePort);
-
+		
 		// TODO Might need to give faultBufferCommunicator
 		SchedulerSystem schedulerSystem = new SchedulerSystem(elevatorBufferCommunicator2, floorBufferCommunicator2,
 				ElevatorSystem.NUM_ELEVATORS);
