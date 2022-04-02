@@ -35,7 +35,7 @@ public class Elevator implements Runnable {
 
 	/** Different states elevator can be in */
 	private static enum STATES {
-		IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED, HARD_FAULT
+		IDLE, MOVING, STOPPED, DOORS_OPEN, DOORS_CLOSED, HARD_FAULT, INTERMEDIATE_FLOOR
 	};
 
 	private ByteBufferCommunicator schedulerBuffer;
@@ -78,6 +78,8 @@ public class Elevator implements Runnable {
 	 * Current state of the elevator
 	 */
 	private STATES currentState;
+	
+	private boolean reachedDestination;
 
 	/**
 	 * Constructor to create elevator object
@@ -101,6 +103,7 @@ public class Elevator implements Runnable {
 		this.queuedTransientFault = false;
 		this.transientFaultLength = 0;
 		this.completingTransientFault = false;
+		this.reachedDestination = false;
 	}
 
 	/**
@@ -168,6 +171,7 @@ public class Elevator implements Runnable {
 				notifyAll();
 				if (isMovingState) {
 					this.currentFloor = this.direction == DirectionEnum.UP_DIRECTION ? this.currentFloor + 1 : this.currentFloor -1;
+					System.out.println("CURRRR FLOORRR" + currentFloor);
 				}
 				return null;
 			}
@@ -293,6 +297,7 @@ public class Elevator implements Runnable {
 				System.out.println("Elevator " + this.elevatorId + ": Idle -> "
 						+ formatter.format(new Date(System.currentTimeMillis())));
 				this.interruptedWhileMoving = false;
+				this.reachedDestination = false;
 
 				// Wait until we receive a ServiceFloorRequest
 				Message msg = (Message) getMessageTimed(0, 0, false);
@@ -339,7 +344,7 @@ public class Elevator implements Runnable {
 
 			case MOVING: {
 				// If we are entering Moving state for the first time, set departureTime
-				if (!this.interruptedWhileMoving) {
+				if (!this.interruptedWhileMoving || !this.reachedDestination) {
 					this.departureTime = System.currentTimeMillis();
 				}
 				System.out.println("Elevator " + this.elevatorId + ": State: Moving -> "
@@ -359,7 +364,7 @@ public class Elevator implements Runnable {
 
 				// If we have been in the Moving state before, subtract timeToTravel by the
 				// length of time we already waited
-				if (this.interruptedWhileMoving) {
+				if (this.interruptedWhileMoving || !this.reachedDestination) {
 					timeToTravel = timeToTravel - (System.currentTimeMillis() - this.departureTime);
 
 					if (timeToTravel <= 0) {
@@ -376,8 +381,13 @@ public class Elevator implements Runnable {
 				
 				ServiceFloorRequestMessage message = (ServiceFloorRequestMessage) msg;
 				if (message == null) {
-					// We have reached our destination floor and will now stop
-					this.currentState = STATES.STOPPED;
+					if (this.currentFloor != destFloor) {
+						this.currentState = STATES.INTERMEDIATE_FLOOR;
+					} else {
+						// We have reached our destination floor and will now stop
+						this.currentState = STATES.STOPPED;
+					}
+					
 					break;
 				} else {
 					// We have received a ServiceFloorRequest WHILE we are still moving in the
@@ -414,9 +424,11 @@ public class Elevator implements Runnable {
 
 					// The amount of time we have already spent moving in the elevator
 					long timeDiff = currTime - departureTime;
+					System.out.println("curr time " + currTime + "dept time" + departureTime);
 
 					// The amount floors we have traveled in the elevator
 					double floorsTravelled = timeDiff / TIME_PER_FLOOR_MS; // i.e 5000 ms / 2819 ms
+					System.out.println("floors travelled" + floorsTravelled);
 
 					// The floor we CANNOT SERVICE
 					// While moving in the elevator, we have already passed this floor
@@ -479,22 +491,23 @@ public class Elevator implements Runnable {
 			}
 			case STOPPED:
 				// Elevator has now stopped
-
+				this.reachedDestination = true;
 				// Remove the floor we have stopped at from the floorBuffer
-				int destinationFloor = this.floorBuffer.get(0);
-				if (this.currentFloor != destinationFloor) {
-					System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + this.currentFloor
-							+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
-							+ formatter.format(new Date(System.currentTimeMillis())));
+				int destinationFloor = this.removeFloorBufferHead();
+				System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + destinationFloor 
+						+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
+						+ formatter.format(new Date(System.currentTimeMillis())));
 				
-					this.currentState = STATES.MOVING;
-				} else {
-					System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + destinationFloor 
-							+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
-							+ formatter.format(new Date(System.currentTimeMillis())));
-					this.removeFloorBufferHead();
-					this.currentState = STATES.DOORS_OPEN;
-				}
+				this.currentState = STATES.DOORS_OPEN;
+//				if (this.currentFloor != destinationFloor) {
+//					System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + this.currentFloor
+//							+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
+//							+ formatter.format(new Date(System.currentTimeMillis())));
+//				
+//					this.currentState = STATES.MOVING;
+//				} else {
+//					
+//				}
 
 				// Send an Arrival message to notify that we have reached a floor
 				ArrivalElevatorMessage arrivalMessage = new ArrivalElevatorMessage(this.getElevatorId(),
@@ -515,7 +528,7 @@ public class Elevator implements Runnable {
 				this.doorOpen = true;
 
 				// If we are entering DoorOpen state for the first time, set doorOpenTime
-				if (!this.interruptedWhileDoorsOpen) {
+				if (!this.interruptedWhileDoorsOpen || !this.reachedDestination) {
 					this.doorsOpenTime = System.currentTimeMillis();
 				}
 
@@ -540,7 +553,7 @@ public class Elevator implements Runnable {
 
 				// If we were in the DoorOpen state last state, reduce timeToWait by amount of
 				// time we already waited
-				if (this.interruptedWhileDoorsOpen) {
+				if (this.interruptedWhileDoorsOpen || !this.reachedDestination) {
 					timeToWait = timeToWait - (System.currentTimeMillis() - this.doorsOpenTime);
 
 					if (timeToWait <= 0) {
@@ -673,6 +686,7 @@ public class Elevator implements Runnable {
 				// states
 				this.interruptedWhileDoorsOpen = false;
 				this.interruptedWhileMoving = false;
+				this.reachedDestination = false;
 
 				if (this.floorBuffer.isEmpty()) {
 					// If we have no more scheduled floors, move to Idle state
@@ -688,6 +702,11 @@ public class Elevator implements Runnable {
 				// :(
 				System.out.println("Elevator " + this.elevatorId + " has received a hard fault");
 				Thread.currentThread().interrupt();
+				break;
+				
+			case INTERMEDIATE_FLOOR:
+				System.out.println("Elevator " + this.elevatorId + " has passed floor " + this.currentFloor);
+				this.currentState = STATES.MOVING;
 				break;
 
 			default:
