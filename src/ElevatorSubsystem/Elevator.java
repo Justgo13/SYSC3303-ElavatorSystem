@@ -152,7 +152,7 @@ public class Elevator implements Runnable {
 	 * @return null if timeout reached or returns Message if message was received
 	 *         during wait
 	 */
-	private synchronized Message getMessageTimed(long timeToTravel, long departureTime) {
+	private synchronized Message getMessageTimed(long timeToTravel, long departureTime, boolean isMovingState) {
 		while (this.messageRequestBuffer.isEmpty()) {
 			try {
 				// If the amount of time so far that has passed exceeds timeToTravel, we throw
@@ -166,6 +166,9 @@ public class Elevator implements Runnable {
 			} catch (TimeoutException e) {
 				// This exception is throw when wait() time has exceeded timeToTravel
 				notifyAll();
+				if (isMovingState) {
+					this.currentFloor = this.direction == DirectionEnum.UP_DIRECTION ? this.currentFloor + 1 : this.currentFloor -1;
+				}
 				return null;
 			}
 		}
@@ -292,7 +295,7 @@ public class Elevator implements Runnable {
 				this.interruptedWhileMoving = false;
 
 				// Wait until we receive a ServiceFloorRequest
-				Message msg = (Message) getMessageTimed(0, 0);
+				Message msg = (Message) getMessageTimed(0, 0, false);
 				
 				if (isMessageFault(msg)) {
 					break;
@@ -365,7 +368,7 @@ public class Elevator implements Runnable {
 					}
 				}
 
-				Message msg = getMessageTimed(timeToTravel, System.currentTimeMillis());
+				Message msg = getMessageTimed((long) TIME_PER_FLOOR_MS, System.currentTimeMillis(), true);
 				
 				if (isMessageFault(msg)) {
 					break;
@@ -478,12 +481,20 @@ public class Elevator implements Runnable {
 				// Elevator has now stopped
 
 				// Remove the floor we have stopped at from the floorBuffer
-				int floor = this.removeFloorBufferHead();
-
-				System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + floor
-						+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
-						+ formatter.format(new Date(System.currentTimeMillis())));
-				this.setCurrentFloor(floor);
+				int destinationFloor = this.floorBuffer.get(0);
+				if (this.currentFloor != destinationFloor) {
+					System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + this.currentFloor
+							+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
+							+ formatter.format(new Date(System.currentTimeMillis())));
+				
+					this.currentState = STATES.MOVING;
+				} else {
+					System.out.println("Elevator " + this.elevatorId + ": State: Stopped at floor " + destinationFloor 
+							+ " FloorBuffer: " + this.floorBuffer.toString() + " -> "
+							+ formatter.format(new Date(System.currentTimeMillis())));
+					this.removeFloorBufferHead();
+					this.currentState = STATES.DOORS_OPEN;
+				}
 
 				// Send an Arrival message to notify that we have reached a floor
 				ArrivalElevatorMessage arrivalMessage = new ArrivalElevatorMessage(this.getElevatorId(),
@@ -494,7 +505,7 @@ public class Elevator implements Runnable {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				this.currentState = STATES.DOORS_OPEN;
+				
 				break;
 
 			case DOORS_OPEN:
@@ -538,7 +549,7 @@ public class Elevator implements Runnable {
 					}
 				}
 
-				Message msg = getMessageTimed(timeToWait, System.currentTimeMillis());
+				Message msg = getMessageTimed(timeToWait, System.currentTimeMillis(), false);
 
 				if (isMessageFault(msg)) {
 					break;
