@@ -167,7 +167,6 @@ public class Elevator implements Runnable {
 				// This exception is throw when wait() time has exceeded timeToTravel
 				notifyAll();
 				if (isMovingState) {
-					System.out.println("CURR FLOOR" + this.currentFloor);
 					this.currentFloor = this.direction == DirectionEnum.UP_DIRECTION ? this.currentFloor + 1 : this.currentFloor -1;
 					this.elevatorFrame.setCurrentFloor(this.elevatorId, this.currentFloor);
 				}
@@ -373,8 +372,6 @@ public class Elevator implements Runnable {
 					}
 				}
 
-				System.out.println("CURR FLOOR" + this.currentFloor);
-				System.out.println("DEST FLOOR" + destFloor);
 				Message msg = getMessageTimed((long) TIME_PER_FLOOR_MS, System.currentTimeMillis(), true);
 				
 				if (isMessageFault(msg)) {
@@ -425,7 +422,6 @@ public class Elevator implements Runnable {
 
 					// The amount of time we have already spent moving in the elevator
 					long timeDiff = currTime - departureTime;
-					System.out.println("curr time " + currTime + "dept time" + departureTime);
 
 					// The amount floors we have traveled in the elevator
 					double floorsTravelled = timeDiff / TIME_PER_FLOOR_MS; // i.e 5000 ms / 2819 ms
@@ -576,7 +572,6 @@ public class Elevator implements Runnable {
 						EndTransientFaultMessage fault = new EndTransientFaultMessage(this.getElevatorId());
 						this.elevatorFrame.setStatus(elevatorId, ElevatorStates.DOORS_CLOSED);
 						System.out.println("Elevator " + this.elevatorId +" is no longer in transient fault");
-						System.out.println("STATE " + this.currentState);
 						try {
 							this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(fault));
 						} catch (IOException e) {
