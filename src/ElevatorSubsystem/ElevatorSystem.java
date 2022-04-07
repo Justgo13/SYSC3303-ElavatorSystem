@@ -3,6 +3,7 @@ package ElevatorSubsystem;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import GUI.ElevatorFrame;
 import SharedResources.*;
 import Messages.*;
 
@@ -25,6 +26,7 @@ public class ElevatorSystem implements Runnable {
 	 * Constructs an ElevatorSystem.
 	 * @param bufferCommunicator An instance of a buffer communicator object
 	 * @param elevators a reference to the elevators for this system
+	 * @param eFrame 
 	 */
 	public ElevatorSystem(ByteBufferCommunicator bufferCommunicator, ArrayList<Elevator> elevators) {
 		this.elevators = elevators;
@@ -121,18 +123,21 @@ public class ElevatorSystem implements Runnable {
 		return msg;
 	}
 	public static void main(String[] args) {
+		ElevatorFrame elevatorFrame = new ElevatorFrame();
 		int sendPort = ElevatorSystem.SEND_PORT;
 		int receivePort = ElevatorSystem.RECEIVE_PORT;
 		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1);
-		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1);
-		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 1);
+		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1, elevatorFrame);
+		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1, elevatorFrame);
+		Elevator elevator3 = new Elevator(2, false, elevatorBufferCommunicator, 2, elevatorFrame);
+		Elevator elevator4 = new Elevator(3, false, elevatorBufferCommunicator, 2, elevatorFrame);
 		new Thread(elevatorBufferCommunicator).start();
 
 		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
 		elevators.add(elevator1);
 		elevators.add(elevator2);
 		elevators.add(elevator3);
+		elevators.add(elevator4);
 
 		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
 		elevatorSystem.start();
