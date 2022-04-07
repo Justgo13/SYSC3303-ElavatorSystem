@@ -53,22 +53,38 @@ public class FloorDataParser {
 
 					// get destination floor
 					int destinationFloor = Integer.parseInt(lineAsArrayList.get(4));
-
-					fm = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor);
+					
+					if (!fileReader.hasNextLine()) {
+						fm = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor, true);
+					} else {
+						fm = new FloorDataMessage(timestamp, currFloor, direction, destinationFloor, false);
+					}
+					
 					break;
 				}
 				case "transient_fault": {
 					int elevatorID = Integer.parseInt(lineAsArrayList.get(2));
 
 					int timeOfFault = Integer.parseInt(lineAsArrayList.get(3));
+					
+					if (!fileReader.hasNextLine()) {
+						fm = new ElevatorTransientFaultMessage(timeOfFault, elevatorID, timestamp, true);
+					} else {
+						fm = new ElevatorTransientFaultMessage(timeOfFault, elevatorID, timestamp, false);
+					}
 
-					fm = new ElevatorTransientFaultMessage(timeOfFault, elevatorID, timestamp);
 					break;
 				}
 				case "hard_fault": {
 					int elevatorID = Integer.parseInt(lineAsArrayList.get(2));
+					
+					if (!fileReader.hasNextLine()) {
+						fm = new ElevatorHardFaultMessage(elevatorID, timestamp, true);
+					} else {
+						fm = new ElevatorHardFaultMessage(elevatorID, timestamp, false);
+					}
 
-					fm = new ElevatorHardFaultMessage(elevatorID, timestamp);
+					
 					break;
 				}
 

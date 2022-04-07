@@ -2,12 +2,18 @@ package GUI;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.*;
 
 import ElevatorSubsystem.ElevatorStates;
 import Messages.MessageTypes;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.AudioSystem;
+
 
 public class ElevatorFrame extends JFrame implements ElevatorView {
 	/**
@@ -35,6 +41,19 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		
 		setSize(1000, 800);
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+		try {
+				File file = new File("src/GUI/elevator_music.wav");
+				System.out.println(file.getAbsolutePath());
+		       AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file.getAbsoluteFile());
+		       Clip clip = AudioSystem.getClip( );
+		       clip.open(audioInputStream);
+		       clip.start( );
+		} catch(Exception ex) {
+		       System.out.println("Error with playing sound.");
+		       ex.printStackTrace( );
+		}
+		
         setVisible(true);
 	}
 	

@@ -16,7 +16,7 @@ import Messages.*;
  *
  */
 public class ElevatorSystem implements Runnable {
-	public final static int NUM_ELEVATORS = 3;
+	public final static int NUM_ELEVATORS = 4;
 	public final static int SEND_PORT = 69;
 	public final static int RECEIVE_PORT = 70;
 	private ByteBufferCommunicator bufferCommunicator;
@@ -88,11 +88,17 @@ public class ElevatorSystem implements Runnable {
 				case ELEVATOR_HARD_FAULT:
 					ElevatorHardFaultMessage hardFaultMessage = (ElevatorHardFaultMessage) message;
 					elevatorId = hardFaultMessage.getElevatorID();
+					
+					Elevator elevatorToRemove = null;
 					for (Elevator elevator: elevators) {
 						if (elevator.getElevatorId() == elevatorId) {
 							elevator.putFloorRequest(hardFaultMessage);
-							elevators.remove(elevator);
+							elevatorToRemove = elevator;
+							break;
 						}
+					}
+					if (elevatorToRemove != null) {
+						elevators.remove(elevatorToRemove);
 					}
 					break;
 	

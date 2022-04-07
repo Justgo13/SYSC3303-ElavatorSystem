@@ -154,12 +154,23 @@ public class SchedulerRequestHandler implements Runnable {
     */
     @Override
     public void run() {
+    	boolean firstMessageBool = true;
         while (true) {
+        	// Start timer when receiving first message
+        	if (firstMessageBool) {
+        		schedulerSystem.addStartingTime(System.currentTimeMillis());
+        		firstMessageBool = false;
+        	}
+        	
             byte[] firstRequest = floorBufferCommunicator.getUDPMessage();
-
+            
             try {
                 Message firstMessage = SerializeUtils.deserialize(firstRequest);
                 FloorDataMessage firstRequestMessage = (FloorDataMessage) firstMessage;
+                
+                if (firstRequestMessage.getIsFinalMessage()) {
+                	schedulerSystem.setFinalMessageArrived(true);
+                }
 
                 boolean acceptedRequest = false;
 

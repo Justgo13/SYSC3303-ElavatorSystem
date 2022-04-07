@@ -6,6 +6,7 @@ import java.util.List;
 
 import Messages.ArrivalElevatorMessage;
 import Messages.ElevatorHardFaultMessage;
+import Messages.ElevatorTransientFaultMessage;
 import Messages.FloorDataMessage;
 import Messages.Message;
 import Messages.ServiceFloorRequestMessage;
@@ -34,12 +35,18 @@ public class SchedulerFaultHandler implements Runnable {
 	public void parseFaultMessage(Message faultMessage) {
 		switch(faultMessage.getMessageType()) {
 		case ELEVATOR_HARD_FAULT:
+			if (((ElevatorHardFaultMessage)faultMessage).getIsFinalMessage()) {
+            	schedulerSystem.setFinalMessageArrived(true);
+            }
 //			ElevatorHardFaultMessage hfMessage = (ElevatorHardFaultMessage) faultMessage;
 //			int elevatorID = hfMessage.getElevatorID();
 //			schedulerSystem.hardFaultElevator(elevatorID);	//update state of elevator accordingly
 			sendElevatorFaultMessage(faultMessage);			//forward fault message to elevator subsystem
 			break;
 		case ELEVATOR_TRANSIENT_FAULT:
+			if (((ElevatorTransientFaultMessage)faultMessage).getIsFinalMessage()) {
+            	schedulerSystem.setFinalMessageArrived(true);
+            }
 			sendElevatorFaultMessage(faultMessage);			//forward fault message to elevator subsystem
 			break;
 		default:
