@@ -15,6 +15,7 @@ public class SchedulerElevatorData {
 	private DirectionEnum direction;
 	private boolean hardFaulted;
 	private boolean transientFaulted;
+	private boolean idle;
 	
 	/**
 	 * Constructs default elevator data object, stores state of given elevator
@@ -25,6 +26,7 @@ public class SchedulerElevatorData {
 		this.direction = DirectionEnum.IDLE_DIRECTION;
 		this.hardFaulted = false;
 		this.transientFaulted = false;
+		this.idle = true;
 	}
 	
 	/**
@@ -40,6 +42,7 @@ public class SchedulerElevatorData {
 		this.direction = dir;
 		this.hardFaulted = false;
 		this.transientFaulted = false;
+		this.idle = true;
 	}
 	
 	/**
@@ -79,6 +82,10 @@ public class SchedulerElevatorData {
 		return this.transientFaulted;
 	}
 	
+	public boolean getIdle() {
+		return this.idle;
+	}
+	
 	public void setCurrentFloor(int currFloor) {
 		this.currentFloor = currFloor;
 	}
@@ -103,5 +110,9 @@ public class SchedulerElevatorData {
 		this.currentFloor = currFloor;
 		this.destinationFloor = destFloor;
 		this.direction = dir;		
+	}
+	
+	public void setIdle(boolean idle) {
+		this.idle = idle;
 	}
 }

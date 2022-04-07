@@ -9,12 +9,15 @@ public class ElevatorTransientFaultMessage extends Message {
 	private float timeOfFault;
 	private int elevatorID;
 	private float timestamp;
+	private boolean isFinalMessage;
 	
-	public ElevatorTransientFaultMessage(float timeOfFault, int elevatorID, float timestamp) {
+	public ElevatorTransientFaultMessage(float timeOfFault, int elevatorID, float timestamp, boolean isFinalMessage) {
 		this.elevatorID = elevatorID;
 		this.timeOfFault = timeOfFault;
 		this.timestamp = timestamp;
+		this.isFinalMessage = isFinalMessage;
 	}
+
 
 	@Override
 	public MessageTypes getMessageType() {
@@ -58,5 +61,12 @@ public class ElevatorTransientFaultMessage extends Message {
 		this.timestamp = timestamp;
 	}
 	
+	/**
+	 * @return the isFinalMessage
+	 */
+	public boolean getIsFinalMessage() {
+		return isFinalMessage;
+	}
+
 	
 }

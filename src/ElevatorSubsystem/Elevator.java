@@ -296,6 +296,16 @@ public class Elevator implements Runnable {
 						+ formatter.format(new Date(System.currentTimeMillis())));
 				this.interruptedWhileMoving = false;
 				this.reachedDestination = false;
+				
+				// Send message stating we are in an idle state
+				// Send an Arrival message to notify that we have reached a floor
+				IdleElevatorMessage idleMessage = new IdleElevatorMessage(this.getElevatorId());
+
+				try {
+					this.schedulerBuffer.sendUDPMessage(SerializeUtils.serialize(idleMessage));
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 
 				// Wait until we receive a ServiceFloorRequest
 				Message msg = (Message) getMessageTimed(0, 0, false);
@@ -346,8 +356,8 @@ public class Elevator implements Runnable {
 				if (!this.interruptedWhileMoving || !this.reachedDestination) {
 					this.departureTime = System.currentTimeMillis();
 				}
-				System.out.println("Elevator " + this.elevatorId + ": State: Moving -> "
-						+ formatter.format(new Date(System.currentTimeMillis())));
+				// System.out.println("Elevator " + this.elevatorId + ": State: Moving -> "
+				//		+ formatter.format(new Date(System.currentTimeMillis())));
 
 				// Floor elevator is going to move towards
 				int destFloor = this.floorBuffer.get(0);
@@ -425,7 +435,7 @@ public class Elevator implements Runnable {
 
 					// The amount floors we have traveled in the elevator
 					double floorsTravelled = timeDiff / TIME_PER_FLOOR_MS; // i.e 5000 ms / 2819 ms
-					System.out.println("floors travelled" + floorsTravelled);
+					// System.out.println("floors travelled" + floorsTravelled);
 
 					// The floor we CANNOT SERVICE
 					// While moving in the elevator, we have already passed this floor
@@ -699,7 +709,7 @@ public class Elevator implements Runnable {
 				break;
 				
 			case INTERMEDIATE_FLOOR:
-				System.out.println("Elevator " + this.elevatorId + " has passed floor " + this.currentFloor);
+				// System.out.println("Elevator " + this.elevatorId + " has passed floor " + this.currentFloor);
 				this.currentState = ElevatorStates.MOVING;
 				break;
 

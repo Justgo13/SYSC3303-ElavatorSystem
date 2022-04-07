@@ -28,6 +28,8 @@ public class SchedulerSystem {
 	private ArrayList<SchedulerElevatorData> elevatorData;
 	private Map<Integer, Boolean> requestResponses;
 	private boolean elevatorsStateChanged;
+	private long startingTime;
+	private boolean finalMessageArrived;
 
 	/**
 	 * 
@@ -66,6 +68,14 @@ public class SchedulerSystem {
 			System.out.println("Elevator " + i + ": \n" + this.elevatorData.get(i));
 		}
 	}
+	
+	public void addStartingTime(long time) {
+		this.startingTime = time;
+	}
+	
+	public void setFinalMessageArrived(boolean bool) {
+		finalMessageArrived = bool;
+	}
 
 	/**
 	 * Parses elevator response message, and typecasts message accordingly. Updates
@@ -80,6 +90,7 @@ public class SchedulerSystem {
 			elevatorData.get(acceptMsg.getElevatorId()).setDestinationFloor(acceptMsg.getElevatorFloorBuffer()); 
 			// updates which floors the elevator will plan to visit, now that it has accepted
 			requestResponses.put(acceptMsg.getRequestID(), true); // Updates service request with elevator's response, via corresponding ID
+			elevatorData.get(acceptMsg.getElevatorId()).setIdle(false);
 			this.elevatorsStateChanged = true;
 			break;
 		case DECLINE_FLOOR_REQUEST_MESSAGE:
@@ -90,6 +101,7 @@ public class SchedulerSystem {
 			ArrivalElevatorMessage arrivalMsg = (ArrivalElevatorMessage) updateMessage;
 			elevatorData.get(arrivalMsg.getElevatorId()).setCurrentFloor(arrivalMsg.getCurrentFloor());
 			elevatorData.get(arrivalMsg.getElevatorId()).setDestinationFloor(arrivalMsg.getFloorBuffer());
+			elevatorData.get(arrivalMsg.getElevatorId()).setIdle(false);
 			this.elevatorsStateChanged = true;
 			break;
 		case START_TRANSIENT_FAULT:
@@ -104,10 +116,29 @@ public class SchedulerSystem {
 			this.elevatorsStateChanged = true;
 			printElevatorState();
 			break;
+		case IDLE_ELEVATOR_MESSAGE:
+			IdleElevatorMessage idleMessage = (IdleElevatorMessage) updateMessage;
+			elevatorData.get(idleMessage.getElevatorID()).setIdle(true);
+			this.elevatorsStateChanged = true;
+			break;
 		default:
 			System.out.println("Unexpected message type.");
 			break;
 		}
+		
+		boolean stillRunning = false;
+		for (SchedulerElevatorData elevatorData: elevatorData) {
+			if (!elevatorData.getIdle() && !elevatorData.getHardFaulted()) {
+				stillRunning = true;
+				break;
+			}
+		}
+		
+		if (stillRunning == false && this.finalMessageArrived) {
+			long timeElapsed = System.currentTimeMillis() - this.startingTime;
+			System.out.println("Simulation finished in " + timeElapsed + " milliseconds!");
+		}
+		
 		notifyAll();
 	}
 	
