@@ -16,12 +16,14 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	private static final long serialVersionUID = 1L;
 	private ArrayList<JSlider> elevator;
 	private ArrayList<JTextField> status;
+	private ArrayList<JTextField> currFloor;
 
 	public ElevatorFrame() {
 		// TODO Auto-generated constructor stub
 		super("Elevator Simulation");
 		elevator = new ArrayList<>();
 		status = new ArrayList<>();
+		currFloor = new ArrayList<>();
 		GridLayout mainPanelLayout = new GridLayout(0,4);
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(mainPanelLayout);
@@ -39,7 +41,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	}
 	
 	private JPanel createElevatorPanel(int elevatorID) {
-		GridLayout elevatorLayout = new GridLayout(3,1);
+		GridLayout elevatorLayout = new GridLayout(4,1);
 		Font headerFont = new Font("SansSerif", Font.BOLD, 40);
 		Font statusFont = new Font("SansSerif", Font.BOLD, 15);
 		
@@ -68,14 +70,23 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		this.status.add(status);
 		elevatorPanel.add(status);
 		
+		JTextField currFloor = new JTextField("Current floor: " + 1);
+		currFloor.setFont(statusFont);
+		currFloor.setHorizontalAlignment(JTextField.CENTER);
+		currFloor.setBorder(null);
+		this.currFloor.add(currFloor);
+		elevatorPanel.add(currFloor);
+		
 		return elevatorPanel;
 	}
 
 	@Override
 	public void setCurrentFloor(int elevatorID, int currFloor) {
 		JSlider elevator = this.elevator.get(elevatorID);
+		JTextField currFloorField = this.currFloor.get(elevatorID);
 		elevator.setValue(currFloor);
 		this.elevator.set(elevatorID, elevator);
+		currFloorField.setText("Current floor: " + Integer.toString(currFloor));
 	}
 
 	@Override
