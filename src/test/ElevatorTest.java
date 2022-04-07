@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import ElevatorSubsystem.Elevator;
 import ElevatorSubsystem.ElevatorSystem;
+import GUI.ElevatorFrame;
 import Messages.ArrivalElevatorMessage;
 import Messages.Message;
 import Messages.MessageTypes;
@@ -26,6 +27,7 @@ import SharedResources.SerializeUtils;
 class ElevatorTest {
 	private static ByteBufferCommunicator testBufferCommunicator, elevatorBufferCommunicator;
 	private static ElevatorSystem elevatorSystem;
+	private static ElevatorFrame elevatorFrame;
 	
 	public static void sendFloorRequestMessage(int srcFloor, int destFloor, DirectionEnum direction,
 			ByteBufferCommunicator buffer, int elevatorId) {
@@ -59,7 +61,8 @@ class ElevatorTest {
 		int receivePort = 70;
 		elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		testBufferCommunicator = new ByteBufferCommunicator(receivePort, sendPort);
-		Elevator elevator = new Elevator(1, false, elevatorBufferCommunicator, 0);
+		elevatorFrame = new ElevatorFrame();
+		Elevator elevator = new Elevator(1, false, elevatorBufferCommunicator, 0, elevatorFrame);
 
 		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
 		elevators.add(elevator);
@@ -77,7 +80,7 @@ class ElevatorTest {
 		int elevatorId = 1;
 		boolean doorOpen = false;
 
-		Elevator elevator = new Elevator(elevatorId, doorOpen, null, 1);
+		Elevator elevator = new Elevator(elevatorId, doorOpen, null, 1, elevatorFrame);
 
 		Assert.assertEquals(elevatorId, elevator.getElevatorId());
 		Assert.assertFalse(elevator.getDoorOpen());
@@ -85,7 +88,6 @@ class ElevatorTest {
 		elevator.setDoorOpen(true);
 
 		Assert.assertTrue(elevator.getDoorOpen());
-
 	}
 
 	@Test
@@ -248,7 +250,7 @@ class ElevatorTest {
 		// elevator starts at floor 7 so we must override what was done in setUp()
 		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(71, 72);
 		ByteBufferCommunicator testBufferCommunicator = new ByteBufferCommunicator(72, 71);
-		Elevator elevator = new Elevator(1, false, elevatorBufferCommunicator, 7);
+		Elevator elevator = new Elevator(1, false, elevatorBufferCommunicator, 7, elevatorFrame);
 
 		ArrayList<Elevator> elevators = new ArrayList<Elevator>();
 		elevators.add(elevator);
