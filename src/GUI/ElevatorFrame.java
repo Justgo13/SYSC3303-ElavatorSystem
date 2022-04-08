@@ -26,7 +26,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	private ArrayList<JTextField> status;
 	private ArrayList<JTextField> currFloor;
 	private JTextField timerField;
-	private Timer timer;
+	private static Timer timer;
 	private int timerVal;
 
 	public ElevatorFrame() {
@@ -44,10 +44,9 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				timerField.setText(timerVal + " ms");
-				timerVal += 1;
+				timerVal += 2;
 			}
 		});
-		timer.start();
 		
 		GridLayout mainPanelLayout = new GridLayout(0,5);
 		JPanel mainPanel = new JPanel();
@@ -82,7 +81,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	}
 	
 	private JPanel createElevatorPanel(int elevatorID) {
-		GridLayout elevatorLayout = new GridLayout(5,1);
+		GridLayout elevatorLayout = new GridLayout(4,1);
 		Font headerFont = new Font("SansSerif", Font.BOLD, 40);
 		Font statusFont = new Font("SansSerif", Font.BOLD, 15);
 		
@@ -136,6 +135,14 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	public void setStatus(int elevatorID, ElevatorStates status) {
 		JTextField statusField = this.status.get(elevatorID);
 		statusField.setText("Status: " + status.name());
+	}
+	
+	public static void stopTimer() {
+		timer.stop();
+	}
+	
+	public static void startTimer() {
+		timer.start();
 	}
 
 }
