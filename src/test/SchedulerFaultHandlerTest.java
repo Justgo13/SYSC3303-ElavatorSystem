@@ -58,7 +58,7 @@ class SchedulerFaultHandlerTest {
 	@Test
 	@DisplayName("Parse a fault message")
 	void testParseFaultMessage() {
-		faultHandler.parseFaultMessage(new ElevatorHardFaultMessage(0, 0));
+		faultHandler.parseFaultMessage(new ElevatorHardFaultMessage(0, 0, false));
 		
 		byte[] messageBytes = testBufferCommunicator.getUDPMessage();
         try {
@@ -70,7 +70,7 @@ class SchedulerFaultHandlerTest {
             fail();
         }
         
-		faultHandler.parseFaultMessage(new ElevatorTransientFaultMessage(0, 0, 1));
+		faultHandler.parseFaultMessage(new ElevatorTransientFaultMessage(0, 0, 1, false));
 		
 		messageBytes = testBufferCommunicator.getUDPMessage();
         try {

@@ -22,7 +22,7 @@ class SerializeUtilsTest {
 		DirectionEnum direction = DirectionEnum.UP_DIRECTION;
 		int destinationNumber = 5;
 		
-		FloorDataMessage originalObject = new FloorDataMessage(timeStamp, floorNumber, direction, destinationNumber);
+		FloorDataMessage originalObject = new FloorDataMessage(timeStamp, floorNumber, direction, destinationNumber, false);
 		
 		try {
 			byte[] serializedObject = SerializeUtils.serialize(originalObject);
