@@ -2,6 +2,8 @@ package GUI;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -23,6 +25,9 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	private ArrayList<JSlider> elevator;
 	private ArrayList<JTextField> status;
 	private ArrayList<JTextField> currFloor;
+	private JTextField timerField;
+	private Timer timer;
+	private int timerVal;
 
 	public ElevatorFrame() {
 		// TODO Auto-generated constructor stub
@@ -30,7 +35,21 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		elevator = new ArrayList<>();
 		status = new ArrayList<>();
 		currFloor = new ArrayList<>();
-		GridLayout mainPanelLayout = new GridLayout(0,4);
+		
+		timerVal = 0;
+		timerField = new JTextField(timerVal + " ms");
+		timer = new Timer(1, new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				timerField.setText(timerVal + " ms");
+				timerVal += 1;
+			}
+		});
+		timer.start();
+		
+		GridLayout mainPanelLayout = new GridLayout(0,5);
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(mainPanelLayout);
 		
@@ -38,11 +57,12 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		mainPanel.add(createElevatorPanel(2));
 		mainPanel.add(createElevatorPanel(3));
 		mainPanel.add(createElevatorPanel(4));
+		this.timerField.setHorizontalAlignment(JTextField.CENTER);
+		mainPanel.add(this.timerField);
 		
 		add(mainPanel);
 		
-		setSize(1000, 800);
-		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
 		
 		try {
 				File file = new File("src/GUI/elevator_music.wav");
@@ -56,11 +76,13 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		       ex.printStackTrace( );
 		}
 		
+		setSize(1000, 800);
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setVisible(true);
 	}
 	
 	private JPanel createElevatorPanel(int elevatorID) {
-		GridLayout elevatorLayout = new GridLayout(4,1);
+		GridLayout elevatorLayout = new GridLayout(5,1);
 		Font headerFont = new Font("SansSerif", Font.BOLD, 40);
 		Font statusFont = new Font("SansSerif", Font.BOLD, 15);
 		
@@ -79,8 +101,10 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		elevator.setPaintLabels(true);
 		elevator.setMinorTickSpacing(1);
 		elevator.setMajorTickSpacing(2);
+		elevator.setEnabled(false);
 		this.elevator.add(elevator);
 		elevatorPanel.add(elevator);
+		
 		
 		JTextField status = new JTextField("Status: " + ElevatorStates.IDLE);
 		status.setFont(statusFont);
