@@ -142,7 +142,7 @@ public class SchedulerSystem {
 		if (stillRunning == false && this.finalMessageArrived) {
 			long timeElapsed = System.currentTimeMillis() - this.startingTime;
 			System.out.println("Simulation finished in " + timeElapsed + " milliseconds!");
-			JOptionPane jPane = new JOptionPane("Simulation finished in " + timeElapsed + " milliseconds!");
+			JOptionPane.showMessageDialog(null,"Simulation finished in " + timeElapsed / 1000 + " seconds!");
 		}
 		
 		notifyAll();
