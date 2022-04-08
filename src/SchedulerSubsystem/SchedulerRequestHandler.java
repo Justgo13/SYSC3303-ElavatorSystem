@@ -160,7 +160,6 @@ public class SchedulerRequestHandler implements Runnable {
         	// Start timer when receiving first message
         	if (firstMessageBool) {
         		schedulerSystem.addStartingTime(System.currentTimeMillis());
-        		ElevatorFrame.startTimer();
         		firstMessageBool = false;
         	}
         	

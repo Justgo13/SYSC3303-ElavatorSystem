@@ -5,6 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import GUI.ElevatorFrame;
 import Messages.ElevatorHardFaultMessage;
 import Messages.ElevatorTransientFaultMessage;
 import Messages.FloorDataMessage;
@@ -31,7 +35,6 @@ public class FloorSystem implements Runnable {
 	private ByteBufferCommunicator floorBufferCommunicator;
 	private ByteBufferCommunicator faultBufferCommunicator;
 	private Floor floor;
-	private static String inputFile;
 
 	/**
 	 * Constructs a FloorSystem.
@@ -115,10 +118,6 @@ public class FloorSystem implements Runnable {
 //			}
 		}
 	}
-	
-	public static void setInputFile(String inputFileName) {
-		inputFile = inputFileName;
-	}
 
 	public static void main(String[] args) {
 		int sendPort = FloorSystem.FLOOR_SEND_PORT;
@@ -127,6 +126,28 @@ public class FloorSystem implements Runnable {
 		sendPort = FloorSystem.FAULT_SEND_PORT;
 		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
 		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		
+		
+		// get input file
+		String inputFile = null;
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fileChooser.setDialogTitle("Choose input file");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			    "TXT Files", "txt");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setFileSelectionMode( JFileChooser.FILES_ONLY );
+		
+		int result = fileChooser.showOpenDialog(null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+		    File selectedFile = fileChooser.getSelectedFile();
+		    inputFile = selectedFile.getAbsolutePath();
+		} else {
+			// must choose a file otherwise program can not progress properly
+			System.exit(1);
+		}
+		
+		
 		FloorSystem floorSystem = new FloorSystem(inputFile, floorBufferCommunicator, faultBufferCommunicator);
 		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
 		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));

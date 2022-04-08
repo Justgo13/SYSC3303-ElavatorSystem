@@ -29,9 +29,6 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	private ArrayList<JSlider> elevator;
 	private ArrayList<JTextField> status;
 	private ArrayList<JTextField> currFloor;
-	private JTextField timerField;
-	private static Timer timer;
-	private int timerVal;
 
 	public ElevatorFrame() {
 		// TODO Auto-generated constructor stub
@@ -40,36 +37,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		status = new ArrayList<>();
 		currFloor = new ArrayList<>();
 		
-		timerVal = 0;
-		timerField = new JTextField(timerVal + " ms");
-		timer = new Timer(1, new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				timerField.setText(timerVal + " ms");
-				timerVal += 2;
-			}
-		});
-		
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
-		fileChooser.setDialogTitle("Choose input file");
-		FileNameExtensionFilter filter = new FileNameExtensionFilter(
-			    "TXT Files", "txt");
-		fileChooser.setFileFilter(filter);
-		fileChooser.setFileSelectionMode( JFileChooser.FILES_ONLY );
-		
-		int result = fileChooser.showOpenDialog(this);
-		if (result == JFileChooser.APPROVE_OPTION) {
-		    File selectedFile = fileChooser.getSelectedFile();
-		    FloorSystem.setInputFile(selectedFile.getAbsolutePath());
-		} else {
-			// must choose a file otherwise program can not progress properly
-			System.exit(1);
-		}
-		
-		GridLayout mainPanelLayout = new GridLayout(0,5);
+		GridLayout mainPanelLayout = new GridLayout(0,4);
 		JPanel mainPanel = new JPanel();
 		mainPanel.setLayout(mainPanelLayout);
 		
@@ -77,8 +45,6 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		mainPanel.add(createElevatorPanel(2));
 		mainPanel.add(createElevatorPanel(3));
 		mainPanel.add(createElevatorPanel(4));
-		this.timerField.setHorizontalAlignment(JTextField.CENTER);
-		mainPanel.add(this.timerField);
 		
 		add(mainPanel);
 		
@@ -156,14 +122,6 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	public void setStatus(int elevatorID, ElevatorStates status) {
 		JTextField statusField = this.status.get(elevatorID);
 		statusField.setText("Status: " + status.name());
-	}
-	
-	public static void stopTimer() {
-		timer.stop();
-	}
-	
-	public static void startTimer() {
-		timer.start();
 	}
 	
 	public static void main(String[] args) {

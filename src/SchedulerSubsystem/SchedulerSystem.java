@@ -1,8 +1,13 @@
 package SchedulerSubsystem;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import ElevatorSubsystem.Elevator;
 import ElevatorSubsystem.ElevatorSystem;
@@ -137,7 +142,7 @@ public class SchedulerSystem {
 		if (stillRunning == false && this.finalMessageArrived) {
 			long timeElapsed = System.currentTimeMillis() - this.startingTime;
 			System.out.println("Simulation finished in " + timeElapsed + " milliseconds!");
-			ElevatorFrame.stopTimer();
+			JOptionPane jPane = new JOptionPane("Simulation finished in " + timeElapsed + " milliseconds!");
 		}
 		
 		notifyAll();
@@ -222,26 +227,10 @@ public class SchedulerSystem {
 	 * @param args A list of string args
 	 */
 	public static void main(String[] args) {
-		// floor
-		int sendPort = FloorSystem.FLOOR_SEND_PORT;
-		int receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
-		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		sendPort = FloorSystem.FAULT_SEND_PORT;
-		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
-		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
-		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
-		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
-		new Thread(floorBufferCommunicator).start();
-		new Thread(faultBufferCommunicator).start();
-
-		floorSystemThread.start();
-		floorResponseHandler.start();
-
 		// elevator
 		ElevatorFrame elevatorFrame = new ElevatorFrame();
-		sendPort = ElevatorSystem.SEND_PORT;
-		receivePort = ElevatorSystem.RECEIVE_PORT;
+		int sendPort = ElevatorSystem.SEND_PORT;
+		int receivePort = ElevatorSystem.RECEIVE_PORT;
 		ByteBufferCommunicator elevatorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
 		Elevator elevator1 = new Elevator(0, false, elevatorBufferCommunicator, 1, elevatorFrame);
 		Elevator elevator2 = new Elevator(1, false, elevatorBufferCommunicator, 1, elevatorFrame);
@@ -257,6 +246,40 @@ public class SchedulerSystem {
 		
 		Thread elevatorSystem = new Thread(new ElevatorSystem(elevatorBufferCommunicator, elevators));
 		elevatorSystem.start();
+		
+		// floor
+		String inputFile = null;
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fileChooser.setDialogTitle("Choose input file");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			    "TXT Files", "txt");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setFileSelectionMode( JFileChooser.FILES_ONLY );
+		
+		int result = fileChooser.showOpenDialog(null);
+		if (result == JFileChooser.APPROVE_OPTION) {
+		    File selectedFile = fileChooser.getSelectedFile();
+		    inputFile = selectedFile.getAbsolutePath();
+		} else {
+			// must choose a file otherwise program can not progress properly
+			System.exit(1);
+		}
+		
+		sendPort = FloorSystem.FLOOR_SEND_PORT;
+		receivePort = FloorSystem.FLOOR_RECEIVE_PORT;
+		ByteBufferCommunicator floorBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		sendPort = FloorSystem.FAULT_SEND_PORT;
+		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
+		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
+		FloorSystem floorSystem = new FloorSystem(inputFile, floorBufferCommunicator, faultBufferCommunicator);
+		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
+		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
+		new Thread(floorBufferCommunicator).start();
+		new Thread(faultBufferCommunicator).start();
+
+		floorSystemThread.start();
+		floorResponseHandler.start();
 
 		// scheduler <-> floor (thread 1)
 		sendPort = FloorSystem.FLOOR_RECEIVE_PORT;
