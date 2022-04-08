@@ -2,16 +2,20 @@ package GUI;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.datatransfer.SystemFlavorMap;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import ElevatorSubsystem.ElevatorStates;
+import FloorSubsystem.FloorSystem;
 import Messages.MessageTypes;
 
+import javax.annotation.processing.Filer;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.AudioSystem;
@@ -47,6 +51,23 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 				timerVal += 2;
 			}
 		});
+		
+		JFileChooser fileChooser = new JFileChooser();
+		fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
+		fileChooser.setDialogTitle("Choose input file");
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(
+			    "TXT Files", "txt");
+		fileChooser.setFileFilter(filter);
+		fileChooser.setFileSelectionMode( JFileChooser.FILES_ONLY );
+		
+		int result = fileChooser.showOpenDialog(this);
+		if (result == JFileChooser.APPROVE_OPTION) {
+		    File selectedFile = fileChooser.getSelectedFile();
+		    FloorSystem.setInputFile(selectedFile.getAbsolutePath());
+		} else {
+			// must choose a file otherwise program can not progress properly
+			System.exit(1);
+		}
 		
 		GridLayout mainPanelLayout = new GridLayout(0,5);
 		JPanel mainPanel = new JPanel();
@@ -143,6 +164,10 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 	
 	public static void startTimer() {
 		timer.start();
+	}
+	
+	public static void main(String[] args) {
+		ElevatorFrame eFrame = new ElevatorFrame();
 	}
 
 }

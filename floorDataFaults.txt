@@ -1,7 +1,10 @@
-00:00:02.0 floor_message 2 Up 4
+00:00:02.0 floor_message 2 Up 22
 00:00:07.0 hard_fault 1
 00:00:08.0 transient_fault 0 5000
-00:00:10.0 floor_message 1 Up 7
-00:00:13.0 floor_message 6 Down 2
-00:00:17.0 floor_message 4 Up 5
-00:00:20.0 floor_message 6 Up 7
+00:00:10.0 floor_message 16 Up 20
+00:00:12.0 floor_message 16 Up 17
+00:00:13.0 floor_message 10 Down 2
+00:00:19.0 floor_message 4 Up 7
+00:00:19.5 floor_message 16 Up 20
+00:00:29.0 floor_message 7 Down 4
+00:00:30.0 hard_fault 2

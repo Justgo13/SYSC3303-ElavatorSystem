@@ -1,5 +1,6 @@
 package FloorSubsystem;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ public class FloorSystem implements Runnable {
 	private ByteBufferCommunicator floorBufferCommunicator;
 	private ByteBufferCommunicator faultBufferCommunicator;
 	private Floor floor;
+	private static String inputFile;
 
 	/**
 	 * Constructs a FloorSystem.
@@ -113,6 +115,10 @@ public class FloorSystem implements Runnable {
 //			}
 		}
 	}
+	
+	public static void setInputFile(String inputFileName) {
+		inputFile = inputFileName;
+	}
 
 	public static void main(String[] args) {
 		int sendPort = FloorSystem.FLOOR_SEND_PORT;
@@ -121,7 +127,7 @@ public class FloorSystem implements Runnable {
 		sendPort = FloorSystem.FAULT_SEND_PORT;
 		receivePort = FloorSystem.FAULT_RECEIVE_PORT;
 		ByteBufferCommunicator faultBufferCommunicator = new ByteBufferCommunicator(sendPort, receivePort);
-		FloorSystem floorSystem = new FloorSystem("floorData.txt", floorBufferCommunicator, faultBufferCommunicator);
+		FloorSystem floorSystem = new FloorSystem(inputFile, floorBufferCommunicator, faultBufferCommunicator);
 		Thread floorSystemThread = new Thread(floorSystem); // TODO maybe make this thread be spawned by floor system itself
 		Thread floorResponseHandler = new Thread(new FloorResponseHandler(floorSystem, floorBufferCommunicator));
 		new Thread(floorBufferCommunicator).start();
