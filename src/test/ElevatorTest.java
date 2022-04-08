@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.junit.Assert;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -184,6 +186,10 @@ class ElevatorTest {
 		try {
 			sendFloorRequestMessage(1, 6, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
 
+			// Idle Msg
+			msg = recieveFromResponseBuffer(testBufferCommunicator);
+			Assert.assertEquals(MessageTypes.IDLE_ELEVATOR_MESSAGE, msg.getMessageType());
+			
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
 			Assert.assertEquals(MessageTypes.ACCEPT_FLOOR_REQUEST_MESSAGE, msg.getMessageType());
@@ -265,7 +271,11 @@ class ElevatorTest {
 		// Test
 		try {
 			sendFloorRequestMessage(4, 5, DirectionEnum.UP_DIRECTION, testBufferCommunicator, 1);
-
+			
+			// Idle Msg
+			msg = recieveFromResponseBuffer(testBufferCommunicator);
+			Assert.assertEquals(MessageTypes.IDLE_ELEVATOR_MESSAGE, msg.getMessageType());
+			
 			// Accept Msg
 			msg = recieveFromResponseBuffer(testBufferCommunicator);
 			Assert.assertEquals(MessageTypes.ACCEPT_FLOOR_REQUEST_MESSAGE, msg.getMessageType());

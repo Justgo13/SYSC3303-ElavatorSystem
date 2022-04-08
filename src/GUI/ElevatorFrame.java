@@ -80,6 +80,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		header.setFont(headerFont);
 		header.setHorizontalAlignment(JTextField.CENTER);
 		header.setBorder(null);
+		header.setEditable(false);
 		elevatorPanel.add(header);
 		
 		JSlider elevator = new JSlider(JSlider.VERTICAL, 1, 22, 1);
@@ -96,6 +97,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		status.setFont(statusFont);
 		status.setHorizontalAlignment(JTextField.CENTER);
 		status.setBorder(null);
+		status.setEditable(false);
 		this.status.add(status);
 		elevatorPanel.add(status);
 		
@@ -103,6 +105,7 @@ public class ElevatorFrame extends JFrame implements ElevatorView {
 		currFloor.setFont(statusFont);
 		currFloor.setHorizontalAlignment(JTextField.CENTER);
 		currFloor.setBorder(null);
+		currFloor.setEditable(false);
 		this.currFloor.add(currFloor);
 		elevatorPanel.add(currFloor);
 		
