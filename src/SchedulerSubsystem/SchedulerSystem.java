@@ -137,6 +137,7 @@ public class SchedulerSystem {
 		if (stillRunning == false && this.finalMessageArrived) {
 			long timeElapsed = System.currentTimeMillis() - this.startingTime;
 			System.out.println("Simulation finished in " + timeElapsed + " milliseconds!");
+			ElevatorFrame.stopTimer();
 		}
 		
 		notifyAll();

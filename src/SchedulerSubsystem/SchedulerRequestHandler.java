@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import GUI.ElevatorFrame;
 import Messages.FloorDataMessage;
 import Messages.Message;
 import Messages.ServiceFloorRequestMessage;
@@ -159,6 +160,7 @@ public class SchedulerRequestHandler implements Runnable {
         	// Start timer when receiving first message
         	if (firstMessageBool) {
         		schedulerSystem.addStartingTime(System.currentTimeMillis());
+        		ElevatorFrame.startTimer();
         		firstMessageBool = false;
         	}
         	
