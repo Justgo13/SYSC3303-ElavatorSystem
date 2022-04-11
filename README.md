@@ -174,3 +174,23 @@ https://hypertextbook.com/facts/2009/AmosBaptiste.shtml
 #####  Harjap Gill
 - Updated elevator system to handle fault messages
 - Scheduler will handle hard fault timeouts (shared)
+
+
+## Iteration 5 Work Distribution
+##### Jason Gao
+- Created GUI frame showing elevator as JSlider, status of elevator with text field and, current elevator floor in a text field
+- Added an additional elevator state for tracking elevator passing intermediate floors on its way to the destination
+- Send updates to GUI when elevator data changes
+
+#####  Kevin Quach
+- Timing implementation (shared)
+
+#####  Michael Quach
+- Timing measurements and analysis
+- Timing implementation (shared)
+
+#####  Shashaank Srivastava
+- Timing implementation (shared)
+  
+#####  Harjap Gill
+- Timing implementation (shared)
